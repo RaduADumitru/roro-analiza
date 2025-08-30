@@ -1,9 +1,26 @@
 from .parser import RoRoParser
 from .analyzer import RoRoAnalyzer
+from .cleaner import RoRoCleaner
+import json
 
+def Cleaner():
+    cleaner = RoRoCleaner('ignore/data-to-clean')
+    count, folder_counts = cleaner.remove_empty()
 
-if __name__ == "__main__":
-    # use_spacy false ca sa se incarce cu batching.
+    print(json.dumps(folder_counts, indent=4, ensure_ascii=False))
+    print("\n\n")
+
+    count, folder_counts = cleaner.remove_duplicate_gazetas()
+
+    print(json.dumps(folder_counts, indent=4, ensure_ascii=False))
+    print("\n\n")
+
+    flags = cleaner.flag_duplicate_sentences()
+
+    print(json.dumps(flags, indent=4, ensure_ascii=False))
+
+def RoMDStatistics():
+     # use_spacy false ca sa se incarce cu batching.
     # daca folosim PC cu multa memorie si placa video, se poate marca use_spacy True si analizatoarele vor rula mai repede
     parser = RoRoParser({'path': 'data-cleaned', 'verbose': True, 'use_spacy': False, 'spacy_model_name': 'ro_core_news_sm'})
 
@@ -15,7 +32,7 @@ if __name__ == "__main__":
     # Al doilea parametru este None deoarece nu facem un subquery
     analyzer.run('dataset_statistics', None) 
 
-    analyzer.save_csv('dataset_statistics.csv')
+    analyzer.save_csv('dataset_statistics-2.csv')
 
     # Analiza pe Judete si Raioane
     # Vrem ca rezultatul sa includa regiunile, deci level = 1
@@ -23,9 +40,11 @@ if __name__ == "__main__":
     # Level este un parametru **kwargs utilizat de sentence_stats pentru a decide la ce nivel sa faca analiza  
     analyzer.run('sentence_stats', ['judete', 'raioane'], False, level=1)
 
-    analyzer.save_csv('RoMD_statistici_text.csv')
+    analyzer.save_csv('RoMD_statistici_text-2.csv')
 
-    analyzer.plot('RoMD_statistici_text')
+    analyzer.plot('RoMD_statistici_text_2')
 
 
+if __name__ == "__main__":
+    RoMDStatistics()
 

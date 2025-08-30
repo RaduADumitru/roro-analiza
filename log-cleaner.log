@@ -1,0 +1,740 @@
+[Cleaner] Removed 3663 empty files from 30 folders
+{
+    "int/UK": 1,
+    "int/Canada_Quebec": 953,
+    "int/Spania": 1,
+    "int/Canada_EN": 1,
+    "raioane/Causeni": 2,
+    "raioane/Sangerei": 2,
+    "raioane/Balti": 27,
+    "raioane/Cahul": 9,
+    "raioane/Comrat": 178,
+    "judete/Moldova_cleaned/Vaslui": 10,
+    "judete/Moldova_cleaned/Neamt": 30,
+    "judete/Moldova_cleaned/Vrancea": 924,
+    "judete/Moldova_cleaned/Bacau": 4,
+    "judete/Moldova_cleaned/Iasi": 1,
+    "judete/Oltenia_cleaned/Olt": 1,
+    "judete/Oltenia_cleaned/Valcea": 11,
+    "judete/Dobrogea_cleaned/Constanta": 5,
+    "judete/Dobrogea_cleaned/Tulcea": 384,
+    "judete/Muntenia_cleaned/Ialomita": 1,
+    "judete/Muntenia_cleaned/Arges": 6,
+    "judete/Muntenia_cleaned/Braila": 115,
+    "judete/Muntenia_cleaned/Giurgiu": 48,
+    "judete/Muntenia_cleaned/Calarasi": 41,
+    "judete/Muntenia_cleaned/Dambovita": 1,
+    "judete/Banat_cleaned/Timis": 115,
+    "judete/Ardeal_cleaned/Cluj": 136,
+    "judete/Ardeal_cleaned/Hunedoara": 3,
+    "judete/Ardeal_cleaned/Covasna": 360,
+    "judete/Crisana_cleaned/Arad": 7,
+    "judete/Maramures_cleaned/Satu Mare": 286
+}
+
+
+
+[Cleaner] Removed HN24
+[Cleaner] Removed Ziarul_De_Iasi
+[Cleaner] Removed actualitati-arad.ro
+[Cleaner] Removed emaramures.ro
+[Cleaner] Removed 727 files from 4 folders (duplicate gazetas)
+{
+    "raioane/Hincesti": 20,
+    "judete/Moldova_cleaned/Iasi": 323,
+    "judete/Crisana_cleaned/Arad": 192,
+    "judete/Maramures_cleaned/Maramures": 192
+}
+
+
+
+[Cleaner] Loading spaCy model ro_core_news_sm with only tokenizer + sentencizer
+Processed gazeta Anglia_Mea with 499 entries
+Processed gazeta Gazeta_Romaneasca with 12 entries
+Processed gazeta PaginiRomanesti with 47 entries
+Processed gazeta Germania_Mea with 500 entries
+Processed gazeta Ziarul_ZigZag with 1364 entries
+Processed gazeta StudioL with 319 entries
+Processed gazeta Unghiul with 608 entries
+Processed gazeta Expresul_Ungheni with 415 entries
+Processed gazeta Ecoul_Nostru with 773 entries
+Processed gazeta Expresul_Calarasi with 511 entries
+Processed gazeta ESP with 921 entries
+Processed gazeta Ialoveni_Online with 504 entries
+Processed gazeta Radio_Orhei with 512 entries
+Processed gazeta ZiuaDeAzi with 495 entries
+Processed gazeta Noi_Comrat with 1 entries
+Processed gazeta Est-Curier with 509 entries
+Processed gazeta Observatorul with 504 entries
+Processed gazeta Zorile_Bucovinei with 1005 entries
+Processed gazeta BucPress with 2005 entries
+Processed gazeta Libertatea with 1134 entries
+Processed gazeta Est_News with 936 entries
+Processed gazeta BZV with 296 entries
+Processed gazeta Viata_Libera with 508 entries
+Processed gazeta Monitorul_De_Galati with 606 entries
+Processed gazeta Atacul with 293 entries
+Processed gazeta Monitorul with 602 entries
+Processed gazeta Vestea with 277 entries
+Processed gazeta Ziarul_De_Vrancea with 84 entries
+Processed gazeta Ziarul_De_Garda with 298 entries
+Processed gazeta Ziarul_De_Bacau with 300 entries
+Processed gazeta Desteptarea with 308 entries
+Processed gazeta Observator with 298 entries
+Processed gazeta Ieseanul with 300 entries
+Processed gazeta News_Iasi with 58 entries
+Processed gazeta GazetaBT with 300 entries
+Processed gazeta Ziarul_Evenimentul with 300 entries
+Processed gazeta Botosaneanul with 308 entries
+Processed gazeta Ziarul_Gorjului with 899 entries
+Processed gazeta Ziarul_De_Olt with 300 entries
+Processed gazeta Eveniment_De_Olt with 306 entries
+Processed gazeta Gazeta_Noua with 32 entries
+Processed gazeta Gorjeanul with 500 entries
+Processed gazeta Accent_De_gorj with 300 entries
+Processed gazeta Cronica_De_Severin with 500 entries
+Processed gazeta Piata_Severineana with 18 entries
+Processed gazeta Ora_De_Dolj with 504 entries
+Processed gazeta Ziarul_De_Calafat with 152 entries
+Processed gazeta Curierul with 300 entries
+Processed gazeta Gazeta_Valceana with 426 entries
+Processed gazeta Cozia_Info with 171 entries
+Processed gazeta Actualitatea_Valceana with 64 entries
+Processed gazeta dezvaluiri.ro with 606 entries
+Processed gazeta atacdeconstanta.com with 206 entries
+Processed gazeta ziaruldetulcea.ro with 115 entries
+Processed gazeta ziaruldelta.ro with 38 entries
+Processed gazeta ziarulimpact with 96 entries
+Processed gazeta ziarulialomita with 27 entries
+Processed gazeta Cronica_De_Teleorman with 300 entries
+Processed gazeta Informatia_De_Teleorman with 300 entries
+Processed gazeta Liber_In_Teleorman with 300 entries
+Processed gazeta TRNews with 300 entries
+Processed gazeta opiniabuzau with 142 entries
+Processed gazeta sansabuzoiana with 95 entries
+Processed gazeta arenabuzoiana with 25 entries
+Processed gazeta argesfocus with 35 entries
+Processed gazeta argesexpress with 80 entries
+Processed gazeta argesexpres with 35 entries
+Processed gazeta atitudineinarges with 78 entries
+Processed gazeta debraila with 40 entries
+Processed gazeta infobraila with 31 entries
+Processed gazeta informatiadegiurgiu with 44 entries
+Processed gazeta jurnalulgiurgiuvean with 13 entries
+Processed gazeta giurgiunews with 50 entries
+Processed gazeta expresdecalarasi with 78 entries
+Processed gazeta calarasi24 with 6 entries
+Processed gazeta gazetadambovitei with 150 entries
+Processed gazeta ziardambovita with 50 entries
+Processed gazeta impactdb with 41 entries
+Processed gazeta observatorulph with 80 entries
+Processed gazeta jurnalulph with 92 entries
+Processed gazeta actualitateaprahoveana with 45 entries
+Processed gazeta informatiata.ro with 228 entries
+Processed gazeta crainou.ro with 200 entries
+Processed gazeta ziarulactualitatea.ro with 251 entries
+Processed gazeta banateanul.ro with 32 entries
+Processed gazeta expressdebanat.ro with 428 entries
+Processed gazeta carasanul.ro with 413 entries
+Processed gazeta albaiulianul with 10 entries
+Processed gazeta abnews with 59 entries
+Processed gazeta alba24 with 42 entries
+Processed gazeta blajinfo with 23 entries
+Processed gazeta bistriteanul with 14 entries
+Processed gazeta gazetadebistrita with 35 entries
+Processed gazeta observatorbn with 4 entries
+Processed gazeta informatiahr with 146 entries
+Processed gazeta harghitanews with 56 entries
+Processed gazeta monitorulcluj with 120 entries
+Processed gazeta gazetadecluj with 80 entries
+Processed gazeta bzc with 87 entries
+Processed gazeta gazetadedimineata with 199 entries
+Processed gazeta glasulhd with 191 entries
+Processed gazeta jvj with 133 entries
+Processed gazeta bunaziuabrasov with 19 entries
+Processed gazeta brasovultau with 31 entries
+Processed gazeta bunaziuafagaras with 36 entries
+Processed gazeta covasnamedia with 200 entries
+Processed gazeta mesageruldecovasna with 57 entries
+Processed gazeta crisana.ro with 40 entries
+Processed gazeta zidezi.ro with 111 entries
+Processed gazeta ebihoreanul.ro with 121 entries
+Processed gazeta aradon.ro with 109 entries
+Processed gazeta ziardearad.ro with 6 entries
+Processed gazeta buletindecarei.ro with 189 entries
+Processed gazeta gazetanord-vest.ro with 31 entries
+Processed gazeta directmm.ro with 200 entries
+Processed gazeta gazetademaramures.ro with 44 entries
+[Cleaner] Flagged 14 gazetas with more than 25.0% duplicate sentences across entries
+{
+    "Noi_Comrat": {
+        "files": 1,
+        "flagged_sentences": [
+            [
+                "участники соревновались в личном и командном зачетах.",
+                1.0
+            ],
+            [
+                "все показали высокое мастерство и волю к победе.",
+                1.0
+            ]
+        ]
+    },
+    "Ziarul_De_Vrancea": {
+        "files": 84,
+        "flagged_sentences": [
+            [
+                "ce ar fi viaţa fără prieteni?",
+                0.5
+            ],
+            [
+                "niciodată nu-i spui unui prieten bun cât de mult îl preţuieşti, ce înseamnă pentru tine, cât de mult primeşti de la el, care te ascultă când simţi că trebuie să...",
+                0.5
+            ],
+            [
+                "foto | vă e dor de zăpezile din 2012, în vrancea?",
+                0.5
+            ],
+            [
+                "probabil că nu, dar nici vremea din prezent nu ne prea încântă.",
+                0.5
+            ],
+            [
+                "din care cauză, din ce motiv, cine poate ști?",
+                0.5
+            ],
+            [
+                "bănuim ceva cu toții, sigur nu este aproape...",
+                0.5
+            ]
+        ]
+    },
+    "GazetaBT": {
+        "files": 300,
+        "flagged_sentences": [
+            [
+                "your email address will not be published.",
+                0.9633333333333334
+            ]
+        ]
+    },
+    "Ziarul_Gorjului": {
+        "files": 899,
+        "flagged_sentences": [
+            [
+                "save my name, email, and website in this browser for the next time i comment.",
+                0.27474972191323693
+            ]
+        ]
+    },
+    "Gorjeanul": {
+        "files": 500,
+        "flagged_sentences": [
+            [
+                "i.i.",
+                0.31
+            ]
+        ]
+    },
+    "Ziarul_De_Calafat": {
+        "files": 152,
+        "flagged_sentences": [
+            [
+                "join our subscribers list to get the latest news, updates and special offers directly in your inbox",
+                0.6907894736842105
+            ]
+        ]
+    },
+    "argesfocus": {
+        "files": 35,
+        "flagged_sentences": [
+            [
+                "ţi-a plăcut articolul?",
+                0.8285714285714286
+            ],
+            [
+                "atunci distribuie-l şi către prietenii şi partenerii tăi!",
+                0.8857142857142857
+            ],
+            [
+                "îţi mulţumim!",
+                0.8857142857142857
+            ]
+        ]
+    },
+    "atitudineinarges": {
+        "files": 78,
+        "flagged_sentences": [
+            [
+                "ţi-a plăcut articolul?",
+                0.8717948717948718
+            ],
+            [
+                "atunci distribuie-l şi către prietenii şi partenerii tăi!",
+                1.0
+            ],
+            [
+                "îţi mulţumim!",
+                1.0
+            ]
+        ]
+    },
+    "albaiulianul": {
+        "files": 10,
+        "flagged_sentences": [
+            [
+                "make sure you enter the (*) required information where indicated.",
+                0.3
+            ],
+            [
+                "html code is not allowed.",
+                0.3
+            ],
+            [
+                ": preg_replace(): the /e modifier is deprecated, use preg_replace_callback instead inon line",
+                0.6
+            ]
+        ]
+    },
+    "blajinfo": {
+        "files": 23,
+        "flagged_sentences": [
+            [
+                "mesaje: la mulţi ani mihai, mihaela, gabriel şi gabriela!",
+                0.391304347826087
+            ],
+            [
+                "felicitări de mihail și gavril 2024 • urări pentru mihai și gavril | blajinfo.ro în 8 noiembrie, îi sărbătorim pe sfinţii arhangheli mihail şi gavril.",
+                0.391304347826087
+            ],
+            [
+                "în această zi peste 1,3 milioane de români îşi serbează ziua de naştere.",
+                0.391304347826087
+            ],
+            [
+                "realitatea.net vă oferă mai jos mesaje, urări, sms-uri şi felicitări pe care poţi să le trimiţi celor care poartă numere sfinţilor mihail şi gavril.",
+                0.391304347826087
+            ],
+            [
+                "„sper ca ziua numelui tău să îți aducă multe motive de a sărbătorii.",
+                0.391304347826087
+            ],
+            [
+                "la mulți ani, mihai!”",
+                0.391304347826087
+            ],
+            [
+                "„de ziua numelui tău cele mai frumoase dorințe să devină realitate.",
+                0.391304347826087
+            ],
+            [
+                "la multi ani, gabriel!”",
+                0.391304347826087
+            ],
+            [
+                "„fie ca sfinții ce te protejază să-ți aducă mult noroc, fericire și împliniri.",
+                0.391304347826087
+            ],
+            [
+                "să ai o zi minunată!”",
+                0.391304347826087
+            ],
+            [
+                "„ziua numelui să-ți fie plină de realizari și să te bucuri mereu de orice lucru frumos din viața ta!",
+                0.391304347826087
+            ],
+            [
+                "la mulți ani, gabi!”",
+                0.391304347826087
+            ],
+            [
+                "„pentru că astăzi este o zi specială pentru tine, mă alătur și eu celor ce-ți doresc din adâncul sufletului numai bine.",
+                0.391304347826087
+            ],
+            [
+                "la mulți ani, gabriela!”",
+                0.391304347826087
+            ],
+            [
+                "„dacă toată lumea îți dorește ca această zi să fie una minunată, eu iți urez ca toate zilele ce urmează să fie pline de bucurii și realizări și să îți umple sufletul de voie bună.",
+                0.391304347826087
+            ],
+            [
+                "„trandafirii pe care i-ai adunat în cununa vieții tale, lasă-i astăzi să se împletească într-un buchet al implinirii.",
+                0.391304347826087
+            ],
+            [
+                "fie ca florile iubirii să-ți împodobească viața și să-ți vezi împlinite toate dorințele.",
+                0.391304347826087
+            ],
+            [
+                "la mulți ani, mihaela!”",
+                0.391304347826087
+            ],
+            [
+                "„gabriel(a) te felicit cu ocazia zilei de naștere și îți urez un cer senin, un soare strălucitor, fericire deplină și tot ceea ce este mai pur și mai luminos.",
+                0.391304347826087
+            ],
+            [
+                "fie ca această sărbătoare să-ți aducă în dar realizarea tuturor visurilor.”",
+                0.391304347826087
+            ],
+            [
+                "„scumpă mihaela, îți doresc să îți sărbătorești ziua numelui înconjurată de sănătate, fericire și de privirile pline de iubire ale celor dragi ție!”",
+                0.391304347826087
+            ],
+            [
+                "„îţi urez să ai o zi a numelui la fel de colorată precum aripile unui fluture, la fel de fericită precum cântecul privighetoarei şi la fel de frumoasă precum o gradină plină cu flori.”",
+                0.391304347826087
+            ],
+            [
+                "“de sfântul mihail și gavriil, fie ca cei dragi să te înconjoare cu caldura sufletelor lor într-o seară magică, iar fericirea să te ia în brațele ei în acest moment special!”",
+                0.391304347826087
+            ],
+            [
+                "„la mulți ani, de sfinții mihail și gavriil!",
+                0.391304347826087
+            ],
+            [
+                "să ai parte de multă sănătate, bucurii, împliniri și să te bucuri de această zi frumoasă mereu!”",
+                0.391304347826087
+            ],
+            [
+                "„îngerul gavril, înger al bunei vestiri, să îţi călăuzească paşii gabriel/gabriela şi să ai parte de o zi la fel de frumoasă ca tine “la mulţi ani!””",
+                0.391304347826087
+            ],
+            [
+                "„arhanghelul mihail, înger al adevărului şi al dreptăţii, să-ţi stea alături mereu, la bine şi la greu, să-ţi lumineze calea şi să-ţi arate destinul.",
+                0.391304347826087
+            ],
+            [
+                "la mulţi ani mihai/mihaela!”",
+                0.391304347826087
+            ],
+            [
+                "„azi fiind o mare sărbătoare, sfinții mihail și gavriil și ziua numelui tău, primește din partea mea multe urări de bine, fericire, mult noroc și împlinirea tuturor dorințelor!”",
+                0.391304347826087
+            ],
+            [
+                "„fie ca din această zi sfântă, în drumul lin al vieţii tale să răsară mereu câte-o rază de soare care să-ţi aducă fericire şi bucurie.",
+                0.391304347826087
+            ],
+            [
+                "multă sănătate şi un sincer la mulţi ani!”",
+                0.391304347826087
+            ],
+            [
+                "alte mesaje ce pot fi transmise prin sms de sf. mihail si gavriil, fie ca cei dragi sa te inconjoare cu caldura sufletelor lor intr-o seara magica, iar fericirea sa te ia in bratele ei in acest moment special!",
+                0.391304347826087
+            ],
+            [
+                "de ziua ce-ti surade-n prag si-i porti frumosul nume, eu iti doresc tot ce-i mai drag si mai frumos pe lume.",
+                0.391304347826087
+            ],
+            [
+                "de ziua numelui tau, iti doresc ca toate lucrurile bune si frumoase sa te copleseasca si sa straluceasca in calea ta catre fericire.",
+                0.391304347826087
+            ],
+            [
+                "la multi ani!",
+                0.391304347826087
+            ],
+            [
+                "de ziua numelui tau, iti doresc tot binele din lume, noroc, fericire si sanatate si sa ti se indeplineasca macar jumatate din dorintele pe care o sa ti le pui!",
+                0.391304347826087
+            ],
+            [
+                "fie ca sfintii ce te protejeaza sa-ti aduca mult noroc, fericire si impliniri.",
+                0.391304347826087
+            ],
+            [
+                "la multi ani, de sfintii mihail si gavril!",
+                0.391304347826087
+            ],
+            [
+                "sa ai parte de multa sanatate, bucurii si impliniri cat cuprinde si sa te bucuri de aceasta zi frumoasa mereu!",
+                0.391304347826087
+            ],
+            [
+                "la multi ani, dragul meu mihai!",
+                0.391304347826087
+            ],
+            [
+                "ziua numelui tau sa-ti fie luminoasa si fericita si sa te bucuri mereu de orice lucru frumos din viata ta!",
+                0.391304347826087
+            ],
+            [
+                "o zi frumoasa si o viata plina de bucurii!",
+                0.391304347826087
+            ],
+            [
+                "la multi ani, gabriel!",
+                0.391304347826087
+            ],
+            [
+                "scumpa mihaela, iti doresc sa iti sarbatoresti ziua numelui inconjurata de sanatate, fericire si de privirile pline de iubire ale celor dragi tie!",
+                0.391304347826087
+            ],
+            [
+                "scumpa gabriela, iti doresc sa iti sarbatoresti ziua numelui inconjurata de sanatate, fericire si de privirile pline de iubire ale celor dragi tie!",
+                0.391304347826087
+            ],
+            [
+                "de sf. mihail si gavriil, fie ca cei dragi sa te inconjoare cu caldura sufletelor lor intr-o seara magica, iar fericirea sa te ia in bratele ei in acest moment special!",
+                0.391304347826087
+            ],
+            [
+                "ziua de 8 noiembrie a început a fi prăznuită în biserică ca sărbătoare a îngerilor, în veacul al cincilea şi s-a răspândit repede în tot răsăritul creştin.",
+                0.391304347826087
+            ],
+            [
+                "vorbind despre îngeri, biserica ne învaţă că sunt duhuri slujitoare, slugi credincioase lui dumnezeu, trimişi de acesta să fie prieteni şi ocrotitori ai oamenilor.",
+                0.391304347826087
+            ],
+            [
+                "la început toţi îngerii au fost buni şi înţelepţi.",
+                0.391304347826087
+            ],
+            [
+                "după încercarea la care i-a supus dumnezeu, înainte de facerea lumii, o parte dintre ei, adică cei conduşi de lucifer, s-au răzvrătit, sfinţii mihail şi gavriil.",
+                0.391304347826087
+            ],
+            [
+                "in popor, ziua de 8 noiembrie mai poarta si numele de “vara arhanghelilor”.",
+                0.391304347826087
+            ],
+            [
+                "vremea in aceasta zi este mai calda decat ar trebui sa fie in aceasta perioada a lunii.",
+                0.391304347826087
+            ],
+            [
+                "nu numai ca este pacat sa nu cinstesti vara arhanghelilor sau sa o petreci facand diverse treburi in gospodarie, se spune... munca in aceasta zi este considerata a fi un semn de sfidare a puterii divine.",
+                0.391304347826087
+            ],
+            [
+                "se crede ca cel care incalca aceasta traditie se va chinui mult in ceasul mortii sale.",
+                0.391304347826087
+            ],
+            [
+                "pe langa aceasta zi calda, traditia spune ca intre sfintii mihail si gavriil si ziua de craciun trebuie sa aiba loc si “vara iernii”, adica vreo 3-4 zile caldute si binevoitoare",
+                0.391304347826087
+            ]
+        ]
+    },
+    "observatorbn": {
+        "files": 4,
+        "flagged_sentences": [
+            [
+                "un bărbat de 84 de ani a ajuns la spital în cursul serii de marți, 12 noiembrie, după ce s-a răsturnat cu mașna pe strada libertății din bistrița.",
+                0.25
+            ],
+            [
+                "bărbatul a pierdut controlul direcției, a intrat în coliziune cu un parapet metalic, după care s-a răsturnat.",
+                0.25
+            ],
+            [
+                "polițiștii de la biroul de ordine publică, ajunși primii la fața locului, au intervenit prompt și i-au acordat primul ajutor conducătorului auto până la sosirea echipajelor medicale.",
+                0.25
+            ],
+            [
+                "bărbatul a ajuns la spital cu mai multe contuzii și fracturi.",
+                0.25
+            ],
+            [
+                "„la upu-smurd din cadrul spitalului clinic județean de urgență bistrița a fost adus aseară un bărbat în vârstă de 84 de ani din județul bistrița-năsăud, policontuzionat în urma unui accident rutier.",
+                0.25
+            ],
+            [
+                "ca urmare a investigațiilor din urgență, s-a stabilit că pacientul prezintă fracturi la nivelul coloanei vertebrale și sternului și a rămas internat la secția chirurgie generală pentru continuarea tratamentului specific.",
+                0.25
+            ],
+            [
+                "starea sa de sănătate este stabilă“, a informat camelia strungari, purtător de cuvânt al spitalului clinic județean de urgență bistrița.",
+                0.25
+            ],
+            [
+                "primele manifestări de iarnă se fac simțite, în această seară, în bistrița-năsăud.",
+                0.25
+            ],
+            [
+                "la această oră ninge în pasul tihuța, dar ninsorile se pot face simțite și în zonele joase.",
+                0.25
+            ],
+            [
+                "„pasul tihuța s-a albit, ninge moderat iar limita ninsorilor este în coborâre vertiginoasā spre zonele joase de relief, astfel, în orele urmātoare așteptām fulgi de nea și în restul teritoriului!",
+                0.25
+            ],
+            [
+                "dupā cum emiteam încā de asearā, astāzi evoluția vremii a luat o întorsāturā radicalā iar de la sāptāmâni întregi de stabilitate, un pasaj frontal rece aduce primele semne hibernale!“,",
+                0.25
+            ],
+            [
+                "a informat ong meteo.",
+                0.25
+            ],
+            [
+                "bn.",
+                0.25
+            ],
+            [
+                "conform prognozei emise de administrația națională de meteorologie, marți precipitațiile se vor extinde în centrul și estul țării.",
+                0.25
+            ],
+            [
+                "vor predomina ploile, dar pe arii în general restrânse vor fi și precipitații sub formă de lapoviță și ninsoare.",
+                0.25
+            ],
+            [
+                "în carpații orientali și meridionali, vor fi precipitații sub formă de lapoviță și ninsoare și se va depune strat de zăpadă.",
+                0.25
+            ],
+            [
+                "se vor acumula cantități de 10...15 l/mp, iar în oltenia și muntenia izolat de peste 25 l/mp.",
+                0.25
+            ],
+            [
+                "vântul va avea intensificări pe litoral, iar pe parcursul zilei de luni, pe arii restrânse și în jumătatea de est a munteniei și în partea continentală a dobrogei.",
+                0.25
+            ],
+            [
+                "în alte zone ale țării, cum ar fi carpații meridionali, ninge însemnat cantitativ și se va depune strat de zăpadă, local de peste 10...20 cm.",
+                0.25
+            ],
+            [
+                "în funcţie de evoluţia şi intensitatea fenomenelor meteorologice, administraţia naţională de meteorologie va actualiza prezentul mesaj inclusiv prin avertizări pentru fenomene severe imediate (nowcasting).",
+                0.25
+            ],
+            [
+                "robin and the backstabbers, vlad dobrescu și bucovina concertează la soho music hall.",
+                0.25
+            ],
+            [
+                "weekend-ul începep de joi, 14 noiembrie, la soho music hall, cu robin and the backstabbers.",
+                0.25
+            ],
+            [
+                "vlad dobrescu vine „în sfârșit” la bistrita sa sărbătoreasca albumul.",
+                0.25
+            ],
+            [
+                "și nu vine singur.",
+                0.25
+            ],
+            [
+                "pe scena vor urca alături de el doc, frank și dj nasa.",
+                0.25
+            ],
+            [
+                "una dintre cele mai mari trupe de hip hop din românia, ctc si-au început activitatea acum 20 de ani, cu o serie de piese pe care vlad dobrescu, deliric și doc le-au înregistrat ca demo.",
+                0.25
+            ],
+            [
+                "piesele au circulat pe casete, răspândindu-se organic printre fanii genului, impresionați de upgrade-ul pe care trupa îl aducea ca lirica și ca sound în hip hop-ul românesc.",
+                0.25
+            ],
+            [
+                "cei 3 mc devin astfel cunoscuți publicului înainte de apariția vreunui material oficial, și sunt invitați pe proiecte ale artiștilor deja consacrați.",
+                0.25
+            ],
+            [
+                "nu reușesc însă să se înțeleagă cu casele de discuri, astfel că în 2000 înființează facem records, primul label independent de hip hop din românia, iar la scurt timp alături de cedry2k editează un ep care dă startul unei noi ere în istoria genului.",
+                0.25
+            ],
+            [
+                "anul 2005 aduce „dificultăți tehnice”, singurul album al trupei, considerat de mulți ascultători un clasic care a adus noi schimbări în hip hop-ul românesc.",
+                0.25
+            ],
+            [
+                "după o pauză de 5 ani, ctc revin diversificându-și stilul: fiecare din cei mc vine cu un material solo, cu propriile caracteristici, în care sunt implicați însă și colegii de trupă.",
+                0.25
+            ],
+            [
+                "toate proiectele sunt de succes: doc – „scăpat de sub control” și „lucrare de control”, deliric – „inspecția tehnică periodică” și vlad dobrescu – „în sfârșit” reușesc să ducă ascultătorii în filme diferite, dar complementare.",
+                0.25
+            ],
+            [
+                "paleta de stiluri continuă să se extindă și în cele mai recente proiecte, care sunt colaborări cu alți producători: „doc & motzu în hd” și „deliric x silent strike”.",
+                0.25
+            ],
+            [
+                "ctc se implică și în alte aspecte de lifestyle urban: deliric crează brand-ul de streetwear porc iar vlad dobrescu produce mic check, singura emisiune de hip hop din fm-ul românesc.",
+                0.25
+            ],
+            [
+                "intorşi dintr-un turneu european de trei săptămâni bucovina poposesc din nou la bistrița pe data de 16 noiembrie sâmbătă şi aduc cu ei energia şi muzica lor inconfundabilă.",
+                0.25
+            ],
+            [
+                "recunoscuți deja în toată europa, băieții de la bucovina reprezintă un pilon principal al metal-ului românesc şi suntem foarte fericiți că opresc din nou la soho.",
+                0.25
+            ],
+            [
+                "un concert de neratat.",
+                0.25
+            ],
+            [
+                "opening act: frontkill frontkill, trupa noastră locală vine din nou la soho să deschidă încă un concert important.",
+                0.25
+            ],
+            [
+                "cu o energie molipsitoare şi o tehnică instrumentală de invidiat pentru vârsta lor, aceştia vin să facă show cum bine ne-au obişnuit.",
+                0.25
+            ],
+            [
+                "pe 15 noiembrie 2024, începând cu ora 18:00, class cafe vă așteaptă la „cină pe întuneric”, o experiență senzorială unică, organizată împreună cu asociația anisia.",
+                0.25
+            ],
+            [
+                "veți avea ocazia să savurați o cină specială în întuneric, lăsându-vă ghidați de simțurile gustului, mirosului și auzului într-o atmosferă intimă, plină de mister.",
+                0.25
+            ],
+            [
+                "de la ora 22:00, stefan padure va întreține atmosfera cu un concert live extraordinar!",
+                0.25
+            ],
+            [
+                "catering academy este susținător al acestui eveniment cu preparate deosebite care vor face experiența culinară cu adevărat memorabilă!",
+                0.25
+            ],
+            [
+                "rezervările sunt limitate, așa că grăbiți-vă să vă asigurați locul!",
+                0.25
+            ]
+        ]
+    },
+    "harghitanews": {
+        "files": 56,
+        "flagged_sentences": [
+            [
+                "bugetul consiliului județean (cj) harghita pe anul în curs este cu...",
+                0.9642857142857143
+            ]
+        ]
+    },
+    "ziardearad.ro": {
+        "files": 6,
+        "flagged_sentences": [
+            [
+                "strike three.",
+                0.3333333333333333
+            ],
+            [
+                "în timp ce orlando nicoară lasă “pe surse” la zf informația că tomșa s-a înțeles cu deutsche telekom și ote să ia telekom, în spania a apărut tot în reputatul cincodias (grupul el pais) informația că datoriile digi au crescut cu 30 la sută, la 1,31 miliarde de euro la final de septembrie, în condițiile în care, atenție!,",
+                0.3333333333333333
+            ],
+            [
+                "în 2024 are de rambursat 109 milioane din obligații și credite ajunse la maturitate, iar în 2025 are de rambursat 606 milioane!!!",
+                0.3333333333333333
+            ]
+        ]
+    },
+    "buletindecarei.ro": {
+        "files": 189,
+        "flagged_sentences": [
+            [
+                "urmariti buletin de carei pe twitter la www.twitter.com/buletindecarei",
+                0.7724867724867724
+            ]
+        ]
+    }
+}
