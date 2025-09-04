@@ -72,7 +72,7 @@ class RoRoAnalyzer:
         return items
             
         
-    def save_csv(self, out_csv="analysis.csv"):
+    def save_csv(self, out_csv="analysis"):
         """
         Saves the current statistics to a CSV file.
 
@@ -107,6 +107,19 @@ class RoRoAnalyzer:
             all_fields.update(v.keys())
         all_fields = sorted(all_fields)
 
+        out_csv = f"stats/{self.cache['name']}/{out_csv}"
+
+        # if the folders do not exist, create it
+        os.makedirs(os.path.dirname(out_csv+".csv"), exist_ok=True)
+
+        # if the filename already exists, append a number to it
+        if os.path.exists(out_csv+'.csv'):
+            i = 1
+            while os.path.exists(f"{out_csv}-{i}.csv"):
+                i += 1
+            out_csv = f"{out_csv}-{i}"
+
+        out_csv += ".csv"
         with open(out_csv, "w", newline="", encoding="utf-8") as f:
             w = csv.writer(f)
             header = ["key"] + all_fields
@@ -156,7 +169,17 @@ class RoRoAnalyzer:
             plt.ylabel(field)
             plt.tight_layout()
 
-            filename = f"{plots_dir}/{out_prefix}_{field}.png"
+            filename = f"{plots_dir}/{self.cache['name']}/{out_prefix}_{field}.png"
+
+            # if the folders do not exist, create it
+            os.makedirs(os.path.dirname(filename), exist_ok=True)
+
+            # if the filename already exists, append a number to it
+            if os.path.exists(filename):
+                i = 1
+                while os.path.exists(f"{filename[:-4]}-{i}.png"):
+                    i += 1
+                filename = f"{filename[:-4]}-{i}.png"
             plt.savefig(filename)
             plt.close()
 
