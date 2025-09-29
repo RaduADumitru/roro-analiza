@@ -22,7 +22,7 @@ def Cleaner():
 def Statistics():
      # use_spacy false ca sa se incarce cu batching.
     # daca folosim PC cu multa memorie si placa video, se poate marca use_spacy True si analizatoarele vor rula mai repede
-    parser = RoRoParser({'path': 'ignore/data-work/romania/Ardeal', 'verbose': True, 'use_spacy': False, 'spacy_model_name': 'ro_core_news_sm'})
+    parser = RoRoParser({'path': 'ignore/data-work/judete', 'verbose': True, 'use_spacy': False, 'spacy_model_name': 'ro_core_news_sm'})
 
     parser.parse()
 
@@ -38,11 +38,11 @@ def Statistics():
     # Vrem ca rezultatul sa includa regiunile, deci level = 1
     # Al treilea parametru este fals deoarece analizatorul nu trebuie sa primeasca un dict, ci un array flat
     # Level este un parametru **kwargs utilizat de sentence_stats pentru a decide la ce nivel sa faca analiza  
-    analyzer.run('sentence_stats', None, False, level=0)
+    analyzer.run('sentence_stats', None, False, level=-1)
 
-    analyzer.save_csv('ardeal')
+    analyzer.save_csv('judete')
 
-    analyzer.plot('ardeal')
+    analyzer.plot('judete')
 
 def Classifiers():
     
@@ -74,5 +74,5 @@ def ClassifiersBERT():
     analyzer.save_csv('ro-md-small')
 
 if __name__ == "__main__":
-    ClassifiersBERT()
+    Statistics()
 
