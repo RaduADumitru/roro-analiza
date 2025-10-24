@@ -70,6 +70,62 @@ class RoRoAnalyzer:
             else:
                 items.append(v)
         return items
+    
+    def save_csv_matrix(self, out_csv="conf_matrix"):
+        """
+        Saves the confusion matrix (and normalized matrix) from the cached result to CSV files.
+
+        Expected cache structure:
+            self.cache["result"]["matrix"] = {
+                "labels": [...],
+                "confusion_matrix": [[...], [...], ...],
+                "confusion_matrix_norm": [[...], [...], ...]
+            }
+
+        Produces:
+            stats/<analysis_name>/<out_csv>_raw.csv
+            stats/<analysis_name>/<out_csv>_norm.csv
+        """
+        if not self.cache:
+            print("[err] Nothing in cache")
+            return
+
+        result = self.cache["result"]
+        if "matrix" not in result:
+            print("[err] Cache does not contain matrix")
+            return
+
+        matrix = result["matrix"]
+        labels = matrix.get("labels")
+        raw = matrix.get("confusion_matrix")
+        norm = matrix.get("confusion_matrix_norm")
+
+        if not labels or not isinstance(raw, list):
+            print("[err] Invalid confusion matrix format")
+            return
+
+        base_path = f"stats/{self.cache['name']}/{out_csv}"
+        os.makedirs(os.path.dirname(base_path + "_raw.csv"), exist_ok=True)
+
+        # Helper for writing
+        def _write_csv(path, data, title):
+            if os.path.exists(path):
+                i = 1
+                while os.path.exists(f"{path[:-4]}-{i}.csv"):
+                    i += 1
+                path = f"{path[:-4]}-{i}.csv"
+            with open(path, "w", newline="", encoding="utf-8") as f:
+                w = csv.writer(f)
+                w.writerow(["true\\pred"] + labels)
+                for true_label, row in zip(labels, data):
+                    w.writerow([true_label] + list(row))
+            print(f"[Analyzer] Saved {title} -> {path}")
+
+        # Write raw and normalized CSVs
+        _write_csv(base_path + "_raw.csv", raw, "raw confusion matrix")
+        if norm is not None:
+            _write_csv(base_path + "_norm.csv", norm, "normalized confusion matrix")
+
             
         
     def save_csv(self, out_csv="analysis"):

@@ -8,13 +8,16 @@ import numpy as np
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder
 from sklearn.metrics import classification_report, accuracy_score, roc_auc_score
+from sklearn.metrics import confusion_matrix
+
+
 
 import torch
 from torch.utils.data import Dataset
 
 from transformers import (
     AutoTokenizer, AutoModelForSequenceClassification,
-    DataCollatorWithPadding, TrainingArguments, Trainer
+    DataCollatorWithPadding, TrainingArguments, Trainer, EarlyStoppingCallback
 )
 import evaluate
 
@@ -24,8 +27,8 @@ class BertConfig:
     model_name = "dumitrescustefan/bert-base-romanian-cased-v1"
     max_length = 256
     batch_size = 8
-    num_epochs = 4
-    lr: float = 2e-5
+    num_epochs = 8
+    lr: float = 1e-3
     weight_decay = 0.01
     fp16 = True            # set False on CPU
     logging_steps = 50
@@ -123,15 +126,19 @@ class RoRoBertClassifier:
             X, y, test_size=test_size, random_state=random_state, stratify=y
         )
 
+        
         # Tokenizer & datasets
         self.tokenizer = AutoTokenizer.from_pretrained(model_name)
         ds_train = _SimpleTextDataset(X_train, y_train, self.tokenizer, max_length)
         ds_test  = _SimpleTextDataset(X_test,  y_test,  self.tokenizer, max_length)
         collator = DataCollatorWithPadding(self.tokenizer)
+        
+        id2label = {i: lbl for i, lbl in enumerate(self.label_order_)}
+        label2id = {v: k for k, v in id2label.items()}
 
         # Model
         self.model = AutoModelForSequenceClassification.from_pretrained(
-            model_name, num_labels=num_labels
+            model_name, num_labels=num_labels, id2label=id2label, label2id=label2id, problem_type="single_label_classification",
         )
 
         if freeze_encoder:
@@ -169,9 +176,11 @@ class RoRoBertClassifier:
             eval_strategy="epoch",
             save_strategy="epoch",
             load_best_model_at_end=True,
-            metric_for_best_model="accuracy",
+            metric_for_best_model="f1",
+            greater_is_better=True,
             logging_steps=logging_steps,
             fp16=bool(fp16),
+            warmup_ratio=0.1,
             report_to=[],
         )
 
@@ -183,6 +192,7 @@ class RoRoBertClassifier:
             tokenizer=self.tokenizer,
             data_collator=collator,
             compute_metrics=compute_metrics,
+            callbacks=[EarlyStoppingCallback(early_stopping_patience=2)]
         )
 
         # Memory snapshot
@@ -198,6 +208,10 @@ class RoRoBertClassifier:
         with torch.no_grad():
             logits = trainer.predict(ds_test).predictions
             preds = logits.argmax(1)
+            # --- Confusion matrices (raw and normalized) ---
+            cm = confusion_matrix(y_test, preds, labels=list(range(num_labels)))
+            cm_norm = confusion_matrix(y_test, preds, labels=list(range(num_labels)), normalize='true')
+
 
         report = classification_report(
             y_test, preds,
@@ -238,5 +252,10 @@ class RoRoBertClassifier:
                 "model": self.model,
                 "tokenizer": self.tokenizer,
                 "label_encoder": self.label_encoder,
+            },
+            "matrix": {
+                "labels": self.label_order_,
+                "confusion_matrix": cm.tolist(),
+                "confusion_matrix_norm": cm_norm.tolist(),
             }
         }

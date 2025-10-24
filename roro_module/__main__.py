@@ -71,8 +71,10 @@ def ClassifiersBERT():
 
     print(result)
 
-    analyzer.save_csv('ro-md-small')
+    analyzer.save_csv('ro_md')
+
+    analyzer.save_csv_matrix('ro_md')
 
 if __name__ == "__main__":
-    Statistics()
+    ClassifiersBERT()
 
