@@ -8,7 +8,7 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.linear_model import LogisticRegression
 from sklearn.pipeline import Pipeline
 from sklearn.model_selection import train_test_split
-from sklearn.metrics import classification_report, roc_auc_score, accuracy_score
+from sklearn.metrics import classification_report, roc_auc_score, accuracy_score, balanced_accuracy_score, matthews_corrcoef, confusion_matrix
 
 import spacy 
 
@@ -170,7 +170,7 @@ class RoRoLogisticRegTfIdfClassifier:
             ("clf", self.clf),
         ])
 
-    def _top_features(self, k = 20):
+    def _top_features(self, k = 10):
         """
         Return a dictionary with the top k features for each class.
 
@@ -236,6 +236,8 @@ class RoRoLogisticRegTfIdfClassifier:
                          f"Found labels: {sorted(set(y))}",
                 "label_counts": label_counts
             }
+        
+        self.labels_order_ = list(set(y))
 
         X_train, X_test, y_train, y_test = train_test_split(
             X, y, test_size=self.test_size, random_state=self.random_state, stratify=y
@@ -254,16 +256,24 @@ class RoRoLogisticRegTfIdfClassifier:
             # Map positive class index
             # classes_[1] is the positive class for the proba used above
             roc_auc = roc_auc_score(y_test, y_proba)
+        
+        acc = accuracy_score(y_test, y_pred)
+        acc_bal = balanced_accuracy_score(y_test, y_pred)
+        mcc = matthews_corrcoef(y_test, y_pred)
+
+        cm_norm = confusion_matrix(y_test, y_pred, labels=self.labels_order_, normalize='true')
+        cm = confusion_matrix(y_test, y_pred, labels=self.labels_order_)
 
         report = classification_report(y_test, y_pred, output_dict=True, zero_division=0)
-        acc = accuracy_score(y_test, y_pred)
+        
+
 
         # Save fitted parts for later reuse
         self.pipeline = pipe
         self.vectorizer = pipe.named_steps["tfidf"]
         self.clf = pipe.named_steps["clf"]
 
-        top_feats = self._top_features(k=20)
+        top_feats = self._top_features(k=10)
         # Implode the feature lists into strings
         top_feats_str = {k: ", ".join(v) for k, v in top_feats.items()}
 
@@ -271,15 +281,22 @@ class RoRoLogisticRegTfIdfClassifier:
                 "processed": len(X),
                 "level_used": self.level,
                 "accuracy": acc,
+                "balanced_accuracy": acc_bal,
+                "mcc": mcc,
                 "roc_auc": roc_auc,
                 **top_feats_str
             }},
             'data': {
                 "classification_report": report,
                 "label_counts": label_counts,
-                # Optionally return the trained objects
                 "model": self.clf,
                 "vectorizer": self.vectorizer,
                 "labels": self.label_order_,
+            },
+            'matrix':
+            {
+                "labels": self.label_order_,
+                "confusion_matrix": cm.tolist(),
+                "confusion_matrix_norm": cm_norm.tolist()
             }
         }

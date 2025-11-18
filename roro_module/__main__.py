@@ -46,17 +46,19 @@ def Statistics():
 
 def Classifiers():
     
-    parser = RoRoParser({'path': 'ignore/data-work/romania', 'verbose': True, 'use_spacy': False, 'spacy_model_name': 'ro_core_news_sm'})
+    parser = RoRoParser({'path': 'ignore/data-work/', 'verbose': True, 'use_spacy': False, 'spacy_model_name': 'ro_core_news_sm'})
 
     parser.parse()
 
     analyzer = RoRoAnalyzer(parser)
 
-    result = analyzer.run('logistic_reg_tf_idf_classifier', None, False, level=0, only_functional=True, verbose=True)
+    result = analyzer.run('logistic_reg_tf_idf_classifier', None, False, level=0, verbose=False, only_functional = True)
 
     print(result)
 
-    analyzer.save_csv('regiuni-ro-only-functional')
+    analyzer.save_csv('18_11_romd_functional')
+
+    analyzer.save_csv_matrix('18_11_romd_functional')
 
 
 def ClassifiersBERT():
@@ -76,5 +78,5 @@ def ClassifiersBERT():
     analyzer.save_csv_matrix('ro_md')
 
 if __name__ == "__main__":
-    ClassifiersBERT()
+    Classifiers()
 

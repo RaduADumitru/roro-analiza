@@ -7,7 +7,7 @@ import numpy as np
 
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder
-from sklearn.metrics import classification_report, accuracy_score, roc_auc_score
+from sklearn.metrics import classification_report, accuracy_score, balanced_accuracy_score, matthews_corrcoef, roc_auc_score
 from sklearn.metrics import confusion_matrix
 
 
@@ -220,6 +220,8 @@ class RoRoBertClassifier:
             output_dict=True, zero_division=0
         )
         acc = accuracy_score(y_test, preds)
+        acc_bal = balanced_accuracy_score(y_test, preds)
+        mcc = matthews_corrcoef(y_test, preds)
 
         roc_auc = None
         if num_labels == 2:
@@ -236,6 +238,8 @@ class RoRoBertClassifier:
                     "processed": len(X),
                     "level_used": self.level,
                     "accuracy": acc,
+                    "balanced_accuracy": acc_bal,
+                    "mcc": mcc,
                     "roc_auc": roc_auc,
                     "memory_mb_before": round(mem_before, 1),
                     "memory_mb_after": round(mem_after, 1),
