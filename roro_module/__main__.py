@@ -77,6 +77,22 @@ def ClassifiersBERT():
 
     analyzer.save_csv_matrix('ro_md')
 
+def ClassifiersLogRegBERT():
+    
+    parser = RoRoParser({'path': 'ignore/data-work/Romania/Ardeal', 'verbose': True, 'use_spacy': False, 'spacy_model_name': 'ro_core_news_sm', 'verbose': True})
+
+    parser.parse()
+
+    analyzer = RoRoAnalyzer(parser)
+
+    result = analyzer.run('bert_logistic_regression_classifier', None, False, level=0, verbose=True)
+
+    print(result)
+
+    analyzer.save_csv('ardeal_test')
+
+    analyzer.save_csv_matrix('ardeal_test')
+
 def StatsClassifiers():
     parser = RoRoParser({'path': 'ignore/data-work/', 'verbose': True, 'use_spacy': False, 'spacy_model_name': 'ro_core_news_sm'})
 
@@ -93,5 +109,5 @@ def StatsClassifiers():
     analyzer.save_csv_matrix('18_11_romd')
 
 if __name__ == "__main__":
-    StatsClassifiers()
+    ClassifiersLogRegBERT()
 
