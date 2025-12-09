@@ -26,9 +26,9 @@ import evaluate
 class BertConfig:
     model_name = "dumitrescustefan/bert-base-romanian-cased-v1"
     max_length = 256
-    batch_size = 8
-    num_epochs = 8
-    lr: float = 1e-3
+    batch_size = 16
+    num_epochs = 3
+    lr: float = 2e-5
     weight_decay = 0.01
     fp16 = True            # set False on CPU
     logging_steps = 50
@@ -114,6 +114,8 @@ class RoRoBertClassifier:
         X, y_raw, label_counts = self._extract_xy(entries)
         if len(set(y_raw)) < 2:
             return {"error": "Need at least two distinct labels.", "label_counts": label_counts}
+        
+        print("DEVICE =", torch.cuda.get_device_name(0) if torch.cuda.is_available() else "CPU")
 
         # Encode labels
         self.label_encoder = LabelEncoder()
@@ -182,6 +184,8 @@ class RoRoBertClassifier:
             fp16=bool(fp16),
             warmup_ratio=0.1,
             report_to=[],
+            dataloader_num_workers=4,
+            gradient_accumulation_steps=1
         )
 
         trainer = Trainer(
