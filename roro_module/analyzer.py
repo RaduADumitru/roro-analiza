@@ -152,6 +152,11 @@ class RoRoAnalyzer:
         base_path = f"stats/{self.cache['name']}"
         os.makedirs(base_path, exist_ok=True)
         out_path = f"{base_path}/{out_png}.png"
+        if os.path.exists(out_path):
+            i = 1
+            while os.path.exists(f"{base_path}/{out_png}-{i}.png"):
+                i += 1
+            out_path = f"{base_path}/{out_png}-{i}.png"
 
         colors = [
             (1.0, 1.0, 1.0),        # white (low values)
