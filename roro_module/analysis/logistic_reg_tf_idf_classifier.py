@@ -83,7 +83,7 @@ class RoRoLogisticRegTfIdfClassifier:
             folder = "(root)"
         return folder
 
-    def _extract_xy(self, entries):
+    def _extract_xy(self, entries, only_functional = False):
         """
         Extract the X and y values from the given entries.
 
@@ -114,8 +114,16 @@ class RoRoLogisticRegTfIdfClassifier:
             if not text:
                 continue
 
-            if doc is not None:
-                self._doc_cache[text] = doc
+            if only_functional:
+                # Reuse doc if available, otherwise create it once here
+                if doc is None:
+                    if self._spacy_model is None:
+                        self._spacy_model = spacy.load(self._spacy_model_name)
+                    doc = self._spacy_model(text)
+
+                tokens = self._functional_tokens_from_doc(doc)
+                text = " ".join(tokens)
+            
 
             rel_path = e.meta.get("rel_path", "")
             folder = self._folder_from_rel_path(rel_path, self.level)
@@ -126,24 +134,17 @@ class RoRoLogisticRegTfIdfClassifier:
 
         return X, y, dict(label_counts)
     
-    def _function_word_analyzer (self, text):
-
-        doc = None 
-
-        if hasattr(self, "_doc_cache"):
-            doc = self._doc_cache.get(text)
-        
-        if doc is not None:
-            if not self._spacy_model:
-                self._spacy_model = spacy.load(self._spacy_model_name)
-            
-            doc = self._spacy_model(text)
-             
-        for tok in doc:
-            if tok.is_space or tok.is_punct:
-                continue
-            if tok.pos_ in {"ADP","CCONJ","SCONJ","PRON","DET","AUX","PART","INTJ"}:
-                yield tok.text.lower()
+    def _functional_tokens_from_doc(self, doc):
+        """
+        Given a spaCy Doc, return a list of functional-word tokens (lowercased).
+        """
+        return [
+            tok.text.lower()
+            for tok in doc
+            if not tok.is_space
+            and not tok.is_punct
+            and tok.pos_ in {"ADP", "CCONJ", "SCONJ", "PRON", "DET", "AUX", "PART", "INTJ"}
+        ]
 
 
     def _build_pipeline(self, only_functional = False, verbose = False):
@@ -155,12 +156,8 @@ class RoRoLogisticRegTfIdfClassifier:
         :return: a Pipeline object
         """
 
-        analyzer = self.tfidf_cfg.analyzer
-        if only_functional:
-            analyzer = self._function_word_analyzer
-
         self.vectorizer = TfidfVectorizer(
-            analyzer=analyzer,
+            analyzer=self.tfidf_cfg.analyzer,
             ngram_range=self.tfidf_cfg.ngram_range if not only_functional else (1, 1),
             max_df=self.tfidf_cfg.max_df,
             min_df=self.tfidf_cfg.min_df,
@@ -168,7 +165,7 @@ class RoRoLogisticRegTfIdfClassifier:
             sublinear_tf=self.tfidf_cfg.sublinear_tf,
             lowercase=self.tfidf_cfg.lowercase if not only_functional else False,
             strip_accents=self.tfidf_cfg.strip_accents,
-            token_pattern=r"(?u)\b\w\w+\b" if not only_functional else None
+            token_pattern=r"(?u)\b\w\w+\b"
         )
         self.clf = LogisticRegression(
             C=self.logreg_cfg.C,
@@ -223,7 +220,7 @@ class RoRoLogisticRegTfIdfClassifier:
         only_functional = kwargs.get("only_functional", False)
         verbose = kwargs.get("verbose", False)
 
-        X, y, label_counts = self._extract_xy(entries)
+        X, y, label_counts = self._extract_xy(entries, only_functional)
 
         if len(set(y)) < 2:
             return {"error": "Need at least two distinct labels.", "label_counts": label_counts}
