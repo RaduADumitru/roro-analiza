@@ -5,6 +5,8 @@ from collections import defaultdict
 import os, psutil
 import numpy as np
 
+import spacy
+
 from sklearn.model_selection import train_test_split, StratifiedKFold
 from sklearn.preprocessing import LabelEncoder
 from sklearn.metrics import classification_report, accuracy_score, balanced_accuracy_score, matthews_corrcoef, roc_auc_score
@@ -63,6 +65,21 @@ class RoRoBertClassifier:
         self.label_encoder = None
         self.label_order_ = None
 
+        self._spacy_model_name ="ro_core_news_lg"
+        self._spacy_model = None
+
+    def _functional_tokens_from_doc(self, doc):
+        """
+        Given a spaCy Doc, return a list of functional-word tokens (lowercased).
+        """
+        return [
+            tok.text.lower()
+            for tok in doc
+            if not tok.is_space
+            and not tok.is_punct
+            and tok.pos_ in {"ADP", "CCONJ", "SCONJ", "PRON", "DET", "AUX", "PART", "INTJ"}
+        ]
+
     def _folder_from_rel_path(self, rel_path, level):
         parts = list(Path(rel_path).parts)
         if not parts: return "(root)"
@@ -79,7 +96,7 @@ class RoRoBertClassifier:
             folder = "(root)"
         return folder
 
-    def _extract_xy(self, entries):
+    def _extract_xy(self, entries, only_functional = False):
         X, y = [], []
         label_counts = defaultdict(int)
         for e in entries:
@@ -87,6 +104,18 @@ class RoRoBertClassifier:
             text = doc.text if doc is not None else getattr(e, "text", None)
             if not text:
                 continue
+
+            if only_functional:
+                # Reuse doc if available, otherwise create it once here
+                if doc is None:
+                    if self._spacy_model is None:
+                        self._spacy_model = spacy.load(self._spacy_model_name)
+                    doc = self._spacy_model(text)
+
+                tokens = self._functional_tokens_from_doc(doc)
+                text = " ".join(tokens)
+
+
             rel_path = e.meta.get("rel_path", "")
             folder = self._folder_from_rel_path(rel_path, self.level)
             X.append(text); y.append(folder)
@@ -113,11 +142,14 @@ class RoRoBertClassifier:
         logging_steps   = kwargs.get("logging_steps",self.cfg.logging_steps)
         output_dir      = kwargs.get("output_dir",   self.cfg.output_dir)
         freeze_encoder  = kwargs.get("freeze_encoder", False) # optional speedup on CPU
+        only_functional = kwargs.get("only_functional", False)
+        spacy_model = kwargs.get("spacy_model", self._spacy_model_name)
+        self._spacy_model_name = spacy_model
 
         random_state = kwargs.get("random_state", 42)
         test_size    = kwargs.get("test_size", 0.2) 
 
-        X, y_raw, label_counts = self._extract_xy(entries)
+        X, y_raw, label_counts = self._extract_xy(entries, only_functional)
         if len(set(y_raw)) < 2:
             return {"error": "Need at least two distinct labels.", "label_counts": label_counts}
         
@@ -178,6 +210,7 @@ class RoRoBertClassifier:
             "id2label": id2label,
             "label2id": label2id,
             "compute_metrics": compute_metrics,
+            "only_functional": only_functional
         }
         return ctx
 
