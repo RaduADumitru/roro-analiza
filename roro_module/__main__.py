@@ -46,7 +46,7 @@ def Statistics():
 
 def Classifiers():
     
-    parser = RoRoParser({'path': 'ignore/data-work/', 'verbose': True, 'use_spacy': False, 'spacy_model_name': 'ro_core_news_sm'})
+    parser = RoRoParser({'path': 'ignore/data-work/Romania/Ardeal', 'verbose': True, 'use_spacy': False, 'spacy_model_name': 'ro_core_news_sm'})
 
     parser.parse()
 
@@ -56,9 +56,9 @@ def Classifiers():
 
     print(result)
 
-    analyzer.save_csv('18_11_romd_functional')
+    analyzer.save_csv('ardeal_logreg_test')
 
-    analyzer.save_csv_matrix('18_11_romd_functional')
+    analyzer.save_csv_matrix('ardeal_logreg_test')
 
 
 def ClassifiersBERT():
@@ -79,7 +79,7 @@ def ClassifiersBERT():
 
 def ClassifiersLogRegBERT():
     
-    parser = RoRoParser({'path': 'ignore/data-work/Romania/Ardeal', 'verbose': True, 'use_spacy': False, 'spacy_model_name': 'ro_core_news_sm', 'verbose': True})
+    parser = RoRoParser({'path': 'ignore/data-work/Romania/Crisana', 'verbose': True, 'use_spacy': False, 'spacy_model_name': 'ro_core_news_sm', 'verbose': True})
 
     parser.parse()
 
@@ -89,9 +89,9 @@ def ClassifiersLogRegBERT():
 
     print(result)
 
-    analyzer.save_csv('ardeal_test')
+    analyzer.save_csv('crisana_test')
 
-    analyzer.save_csv_matrix('ardeal_test')
+    analyzer.save_csv_matrix('crisana_test')
 
 def StatsClassifiers():
     parser = RoRoParser({'path': 'ignore/data-work/', 'verbose': True, 'use_spacy': False, 'spacy_model_name': 'ro_core_news_sm'})
@@ -109,5 +109,5 @@ def StatsClassifiers():
     analyzer.save_csv_matrix('18_11_romd')
 
 if __name__ == "__main__":
-    ClassifiersLogRegBERT()
+    Classifiers()
 

@@ -7,7 +7,7 @@ import numpy as np
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.linear_model import LogisticRegression
 from sklearn.pipeline import Pipeline
-from sklearn.model_selection import train_test_split
+from sklearn.model_selection import train_test_split, StratifiedKFold
 from sklearn.metrics import classification_report, roc_auc_score, accuracy_score, balanced_accuracy_score, matthews_corrcoef, confusion_matrix
 
 import spacy 
@@ -53,6 +53,8 @@ class RoRoLogisticRegTfIdfClassifier:
         self._spacy_model_name = spacy_model
         self._spacy_model = None
 
+        self._doc_cache = {}
+
     def _folder_from_rel_path(self, rel_path, level):
         """
         Given a relative path and a level, return the corresponding folder name.
@@ -81,7 +83,7 @@ class RoRoLogisticRegTfIdfClassifier:
             folder = "(root)"
         return folder
 
-    def _extract_xy(self, entries):
+    def _extract_xy(self, entries, only_functional = False):
         """
         Extract the X and y values from the given entries.
 
@@ -112,6 +114,17 @@ class RoRoLogisticRegTfIdfClassifier:
             if not text:
                 continue
 
+            if only_functional:
+                # Reuse doc if available, otherwise create it once here
+                if doc is None:
+                    if self._spacy_model is None:
+                        self._spacy_model = spacy.load(self._spacy_model_name)
+                    doc = self._spacy_model(text)
+
+                tokens = self._functional_tokens_from_doc(doc)
+                text = " ".join(tokens)
+            
+
             rel_path = e.meta.get("rel_path", "")
             folder = self._folder_from_rel_path(rel_path, self.level)
 
@@ -121,17 +134,17 @@ class RoRoLogisticRegTfIdfClassifier:
 
         return X, y, dict(label_counts)
     
-    def _function_word_analyzer (self, text):
-
-        if not self._spacy_model:
-            self._spacy_model = spacy.load(self._spacy_model_name)
-        
-        doc = self._spacy_model(text) 
-        for tok in doc:
-            if tok.is_space or tok.is_punct:
-                continue
-            if tok.pos_ in {"ADP","CCONJ","SCONJ","PRON","DET","AUX","PART","INTJ"}:
-                yield tok.text.lower()
+    def _functional_tokens_from_doc(self, doc):
+        """
+        Given a spaCy Doc, return a list of functional-word tokens (lowercased).
+        """
+        return [
+            tok.text.lower()
+            for tok in doc
+            if not tok.is_space
+            and not tok.is_punct
+            and tok.pos_ in {"ADP", "CCONJ", "SCONJ", "PRON", "DET", "AUX", "PART", "INTJ"}
+        ]
 
 
     def _build_pipeline(self, only_functional = False, verbose = False):
@@ -143,12 +156,8 @@ class RoRoLogisticRegTfIdfClassifier:
         :return: a Pipeline object
         """
 
-        analyzer = self.tfidf_cfg.analyzer
-        if only_functional:
-            analyzer = self._function_word_analyzer
-
         self.vectorizer = TfidfVectorizer(
-            analyzer=analyzer,
+            analyzer=self.tfidf_cfg.analyzer,
             ngram_range=self.tfidf_cfg.ngram_range if not only_functional else (1, 1),
             max_df=self.tfidf_cfg.max_df,
             min_df=self.tfidf_cfg.min_df,
@@ -156,7 +165,7 @@ class RoRoLogisticRegTfIdfClassifier:
             sublinear_tf=self.tfidf_cfg.sublinear_tf,
             lowercase=self.tfidf_cfg.lowercase if not only_functional else False,
             strip_accents=self.tfidf_cfg.strip_accents,
-            token_pattern=r"(?u)\b\w\w+\b" if not only_functional else None
+            token_pattern=r"(?u)\b\w\w+\b"
         )
         self.clf = LogisticRegression(
             C=self.logreg_cfg.C,
@@ -203,8 +212,33 @@ class RoRoLogisticRegTfIdfClassifier:
                 top_idx = np.argsort(coef[i])[-k:]
                 out[c] = feature_names[top_idx].tolist()
         return out
+    
+    def _prepare_common(self, entries, **kwargs):
+        level = kwargs.get("level", self.level)
+        self.level = level
+
+        only_functional = kwargs.get("only_functional", False)
+        verbose = kwargs.get("verbose", False)
+
+        X, y, label_counts = self._extract_xy(entries, only_functional)
+
+        if len(set(y)) < 2:
+            return {"error": "Need at least two distinct labels.", "label_counts": label_counts}
+        
+        self.label_order_ = list(set(y))
+
+        ctx = {
+            "X": X,
+            "y": np.array(y),
+            "label_counts": label_counts,
+            "only_functional": only_functional,
+            "verbose": verbose
+        }
+
+        return ctx
 
     def run(self, entries, **kwargs):
+
         """
         Run a logistic regression with TF-IDF features on the given entries.
 
@@ -221,23 +255,28 @@ class RoRoLogisticRegTfIdfClassifier:
         :return: a dictionary with the results, including the classification report,
             accuracy, and optionally the ROC-AUC score, and the top features per class
         """
-        level = kwargs.get("level", self.level)
-        self.level = level
-
-        only_functional = kwargs.get("only_functional", False)
-
-        verbose = kwargs.get("verbose", False)
-
-        X, y, label_counts = self._extract_xy(entries)
-
-        if len(set(y)) < 2:
-            return {
-                "error": "Need at least two distinct labels. "
-                         f"Found labels: {sorted(set(y))}",
-                "label_counts": label_counts
-            }
         
-        self.labels_order_ = list(set(y))
+
+        cv_folds = kwargs.get("cv_folds", None)
+
+        if cv_folds is None or cv_folds < 2:
+            return self._run_single_split(entries, **kwargs)
+        
+        else:
+            return self._run_cross_validation(entries, **kwargs)
+
+    def _run_single_split(self, entries, **kwargs):
+        ctx = self._prepare_common(entries, **kwargs)
+
+        if "error" in ctx:
+            return ctx
+        
+        X              = ctx["X"]
+        y              = ctx["y"]
+        label_counts   = ctx["label_counts"]
+        only_functional = ctx["only_functional"]
+        verbose        = ctx["verbose"]
+
 
         X_train, X_test, y_train, y_test = train_test_split(
             X, y, test_size=self.test_size, random_state=self.random_state, stratify=y
@@ -261,8 +300,8 @@ class RoRoLogisticRegTfIdfClassifier:
         acc_bal = balanced_accuracy_score(y_test, y_pred)
         mcc = matthews_corrcoef(y_test, y_pred)
 
-        cm_norm = confusion_matrix(y_test, y_pred, labels=self.labels_order_, normalize='true')
-        cm = confusion_matrix(y_test, y_pred, labels=self.labels_order_)
+        cm_norm = confusion_matrix(y_test, y_pred, labels=self.label_order_, normalize='true')
+        cm = confusion_matrix(y_test, y_pred, labels=self.label_order_)
 
         report = classification_report(y_test, y_pred, output_dict=True, zero_division=0)
         
@@ -298,5 +337,151 @@ class RoRoLogisticRegTfIdfClassifier:
                 "labels": self.label_order_,
                 "confusion_matrix": cm.tolist(),
                 "confusion_matrix_norm": cm_norm.tolist()
+            }
+        }
+    
+
+    def _run_cross_validation(self, entries, **kwargs):
+        ctx = self._prepare_common(entries, **kwargs)
+
+        if "error" in ctx:
+            return ctx
+        
+        cv_folds       = kwargs.get("cv_folds")
+        X              = ctx["X"]
+        y              = ctx["y"]
+        label_counts   = ctx["label_counts"]
+        only_functional = ctx["only_functional"]
+        verbose        = ctx["verbose"]
+
+        skf = StratifiedKFold(n_splits=cv_folds, shuffle=True, random_state=self.random_state)
+
+        all_y_test = []
+        all_y_pred = []
+        all_probs = [] if len(self.label_order_) == 2 else None
+        fold_metrics = []
+
+        for fold_idx, (train_idx, test_idx) in enumerate(skf.split(X, y), start = 1):
+            X_train = [X[i] for i in train_idx]
+            X_test = [X[i] for i in test_idx]
+            y_train = [y[i] for i in train_idx]
+            y_test = [y[i] for i in test_idx]
+
+            pipe = self._build_pipeline(only_functional, verbose)
+            pipe.fit(X_train, y_train)
+
+            y_pred = pipe.predict(X_test)
+            
+            all_y_test.append(y_test)
+            all_y_pred.append(y_pred)
+
+            roc_auc_fold = None
+
+            if hasattr(pipe.named_steps["clf"], "predict_proba") and len(self.label_order_) == 2:
+                y_proba = pipe.predict_proba(X_test)[:, 1]
+                if all_probs is not None:
+                    all_probs.append(y_proba)
+                try:    
+                    roc_auc_fold = roc_auc_score(y_test, y_proba)
+                except Exception:
+                    pass
+            
+            acc = accuracy_score(y_test, y_pred)
+            acc_bal = balanced_accuracy_score(y_test, y_pred)
+            mcc = matthews_corrcoef(y_test, y_pred)
+
+            fold_metrics.append({
+                "fold": fold_idx,
+                "n_test": int(len(y_test)),
+                "accuracy": acc,
+                "balanced_accuracy": acc_bal,
+                "mcc": mcc,
+                "roc_auc": roc_auc_fold,
+            })
+
+            if verbose:
+                print(f"Fold {fold_idx} accuracy: {acc}")
+                print(f"Fold {fold_idx} balanced accuracy: {acc_bal}")
+                print(f"Fold {fold_idx} MCC: {mcc}")
+                print(f"Fold {fold_idx} ROC-AUC: {roc_auc_fold}")
+                print(f"Fold {fold_idx} n_test: {int(len(y_test))}")
+
+        # Aggregation
+
+        y_test_all = np.concatenate(all_y_test)
+        y_pred_all = np.concatenate(all_y_pred)
+
+        cm = confusion_matrix(y_test_all, y_pred_all, labels=self.label_order_)
+        cm_norm = confusion_matrix(y_test_all, y_pred_all, labels=self.label_order_, normalize='true')
+
+        report = classification_report(y_test_all, y_pred_all, output_dict=True, zero_division=0)
+
+        accs = [f["accuracy"] for f in fold_metrics]
+        acc_bals = [f["balanced_accuracy"] for f in fold_metrics]
+        mccs = [f["mcc"] for f in fold_metrics]
+        roc_aucs = [f["roc_auc"] for f in fold_metrics if f["roc_auc"] is not None]
+
+        roc_auc_global = None
+        if all_probs is not None and len(all_probs) > 0:
+            try:
+                probs_all = np.concatenate(all_probs)
+                roc_auc_global = roc_auc_score(y_test_all, probs_all)
+            except Exception:
+                roc_auc_global = None
+
+        # Fit on full data once for top features / final model
+        pipe_full = self._build_pipeline(only_functional, verbose)
+        pipe_full.fit(X, y)
+        self.pipeline = pipe_full
+        self.vectorizer = pipe_full.named_steps["tfidf"]
+        self.clf = pipe_full.named_steps["clf"]
+
+        top_feats = self._top_features(k = 10)
+        top_feats_str = {k: ", ".join(v) for k, v in top_feats.items()}
+
+
+        stats = {}
+
+        # One row per fold
+        for m in fold_metrics:
+            fold_key = f"fold_{m['fold']}"
+            stats[fold_key] = {
+                "fold": m["fold"],
+                "n_test": m["n_test"],
+                "accuracy": m["accuracy"],
+                "balanced_accuracy": m["balanced_accuracy"],
+                "mcc": m["mcc"],
+                "roc_auc": m["roc_auc"],
+            }
+
+        # Aggregate row
+        stats["aggregate"] = {
+            "processed": len(X),
+            "level_used": self.level,
+            "accuracy_mean": float(np.mean(accs)),
+            "accuracy_std": float(np.std(accs)),
+            "balanced_accuracy_mean": float(np.mean(acc_bals)),
+            "balanced_accuracy_std": float(np.std(acc_bals)),
+            "mcc_mean": float(np.mean(mccs)),
+            "mcc_std": float(np.std(mccs)),
+            "roc_auc_mean": float(np.mean(roc_aucs)) if roc_aucs else None,
+            "roc_auc_global": roc_auc_global,
+            "cv_folds": cv_folds,
+            **top_feats_str,
+        }
+
+        return {
+            "stats": stats,
+            "data": {
+                "classification_report": report,
+                "label_counts": label_counts,
+                "model": self.clf,
+                "vectorizer": self.vectorizer,
+                "labels": self.label_order_,
+            },
+            "matrix": {
+                "labels": self.label_order_,
+                "confusion_matrix": cm.tolist(),
+                "confusion_matrix_norm": cm_norm.tolist(),
             }
         }
