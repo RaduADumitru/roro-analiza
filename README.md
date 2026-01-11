@@ -13,6 +13,6 @@ A set of scripts for exploratory data analysis + associated plots lie under the 
 Since some of these scripts use the local `roro_module`, for example to parse the local dataset using the `RoRoParser` class, you can run them from the repo root level as follows:
 
 - download dataset and unzip as described in Usage section: below examples assume unzipped dataset lies at root level under the name `data-cleaned`
-- install dependencies: `pip install -r eda/requirements.txt`
+- install dependencies: `pip install -r requirements.txt`
 - run on Windows: `$env:PYTHONPATH = $PWD python eda\plot_mattr.py --data-path 'data-cleaned'`
 - run on Linux / macOS: `export PYTHONPATH=$PWD; python eda/plot_mattr.py --data-path 'data-cleaned'`
