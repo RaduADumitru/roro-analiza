@@ -26,7 +26,7 @@ class RoRoSentenceStatsClassifier:
         random_state = 42,
         logreg = LogRegConfig(),
         spacy_model = "ro_core_news_sm",
-        batch_size = 512
+        batch_size = 128
     ):
         self.level = level
         self.logreg_cfg = logreg
@@ -87,7 +87,7 @@ class RoRoSentenceStatsClassifier:
         :param entries: a list of objects with text and rel_path attributes
         :return: X, y, and label_counts
         """
-        X, y = [], []
+        X, Xdocs, y = [], [], []
         label_counts = defaultdict(int)
 
         for e in entries:
@@ -101,10 +101,11 @@ class RoRoSentenceStatsClassifier:
             folder = self._folder_from_rel_path(rel_path, self.level)
 
             X.append(text)
+            Xdocs.append(doc)
             y.append(folder)
             label_counts[folder] += 1
 
-        return X, y, dict(label_counts)
+        return X, Xdocs, y, dict(label_counts)
     
     def _chunks(self, seq, size):
         """Yield successive slices of size from seq."""
@@ -165,7 +166,9 @@ class RoRoSentenceStatsClassifier:
 
         verbose = kwargs.get("verbose", False)
 
-        X, y, label_counts = self._extract_xy(entries)
+        self._spacy_model_name = kwargs.get("spacy_model_name", self._spacy_model_name)
+
+        X, Xdocs, y, label_counts = self._extract_xy(entries)
 
         if len(set(y)) < 2:
             return {
@@ -176,15 +179,28 @@ class RoRoSentenceStatsClassifier:
         
         self.labels_order_ = list(set(y))
 
-        X_train, X_test, y_train, y_test = train_test_split(
-            X, y, test_size=self.test_size, random_state=self.random_state, stratify=y
+        X_train, X_test, Xdocs_train, Xdocs_test, y_train, y_test = train_test_split(
+            X, Xdocs, y, test_size=self.test_size, random_state=self.random_state, stratify=y
         )
 
-        self._spacy_model = spacy.load(self._spacy_model_name)
 
-        X_train_data = self._from_text(X_train)
-
-        X_test_data = self._from_text(X_test, "Test")
+        # Check if data has spacy already 
+        if Xdocs_train[0] is not None:
+            X_train_data = np.asarray(
+                [self._stats_from_doc(doc) for doc in Xdocs_train],
+                dtype=np.float32
+            )
+            print("Training: processed data with spacy")
+            X_test_data = np.asarray(
+                [self._stats_from_doc(doc) for doc in Xdocs_test],
+                dtype=np.float32
+            )
+            print("Test: processed data with spacy")
+        else:
+            self._spacy_model = spacy.load(self._spacy_model_name)
+            
+            X_train_data = self._from_text(X_train)
+            X_test_data = self._from_text(X_test, "Test")
 
         self.clf = LogisticRegression(
             C=self.logreg_cfg.C,

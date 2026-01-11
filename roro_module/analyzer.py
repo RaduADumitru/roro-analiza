@@ -2,9 +2,11 @@ import re
 import os
 import csv 
 import matplotlib.pyplot as plt
+from matplotlib.colors import LinearSegmentedColormap
 from collections import defaultdict
 from pathlib import Path
 import importlib
+import numpy as np
 
 class RoRoAnalyzer:
     def __init__(self, parser):
@@ -125,6 +127,69 @@ class RoRoAnalyzer:
         _write_csv(base_path + "_raw.csv", raw, "raw confusion matrix")
         if norm is not None:
             _write_csv(base_path + "_norm.csv", norm, "normalized confusion matrix")
+            self.save_confusion_heatmap(out_csv+"_heatmap")
+
+    def save_confusion_heatmap(self, out_pdf="conf_matrix_heatmap"):
+        if not self.cache:
+            print("[err] Nothing in cache")
+            return
+        
+        result = self.cache["result"]
+        if "matrix" not in result:
+            print("[err] Cache does not contain matrix")
+            return
+    
+        matrix = result["matrix"]
+        labels = matrix.get("labels")
+        norm = matrix.get("confusion_matrix_norm")
+
+        if not labels or not isinstance(norm, list):
+            print("[err] Invalid confusion matrix format")
+            return
+        
+        norm = np.array(norm)
+
+        base_path = f"stats/{self.cache['name']}"
+        os.makedirs(base_path, exist_ok=True)
+        out_path = f"{base_path}/{out_pdf}.pdf"
+        if os.path.exists(out_path):
+            i = 1
+            while os.path.exists(f"{base_path}/{out_pdf}-{i}.pdf"):
+                i += 1
+            out_path = f"{base_path}/{out_pdf}-{i}.pdf"
+
+        colors = [
+            (1.0, 1.0, 1.0),        # white (low values)
+            (0.85, 0.80, 0.90),     # very light lavender grey
+            (0.60, 0.55, 0.70),     # medium grey-purple
+            (0.35, 0.30, 0.45),     # darker purple-grey
+            (0.15, 0.05, 0.25),     # dark purple (high values)
+        ]
+
+        purple_greys_r = LinearSegmentedColormap.from_list("purple_greys_r", colors)
+
+
+        plt.figure(figsize=(8, 6))
+        im =  plt.imshow (norm, cmap=purple_greys_r, vmin=0, vmax=1)
+        plt.colorbar(im, label="Normalized Confusion Matrix")
+
+        plt.xticks(range(len(labels)), labels, rotation=45, ha="right")
+        plt.yticks(range(len(labels)), labels)
+        
+        plt.xlabel("Predicted")
+        plt.ylabel("True")
+        plt.title("Normalized Confusion Matrix")
+
+        for i in range(len(labels)):
+            for j in range(len(labels)):
+                value = norm[i, j]
+                plt.text(j, i, f"{value:.2f}", ha="center", va="center", color="white" if value > 0.5 else "black")
+
+
+        plt.tight_layout()
+        
+        plt.savefig(out_path, dpi=300, format="pdf")
+        print(f"[Analyzer] Saved confusion matrix heatmap -> {out_path}")
 
             
         
