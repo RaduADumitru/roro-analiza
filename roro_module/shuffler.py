@@ -1,10 +1,11 @@
 
 from pathlib import Path
 import random
-from collections import defaultdict
+from collections import defaultdict, Counter
 import spacy
 import re 
 import json
+import csv 
 
 """ 
 Class RoRoShuffler
@@ -82,14 +83,30 @@ class RoRoShuffler:
             
 
             # Remove duplicates, after normalization
-            unique_sentences = []
-            seen_sentences = set()
+            rejected = []  # (reason, sentence)
+            dup_counts = Counter()
+            rep_text = {}  # key -> representative sentence text
+
             for s in sentences:
-                key = self._norm_sent(s)
-                if not key or key in seen_sentences:
+                s = s.strip()
+                if not s:
                     continue
-                seen_sentences.add(key)
-                unique_sentences.append(s.strip())
+
+                ok, reason = self._is_good_sentence(s)
+                if not ok:
+                    rejected.append((reason, s))
+                    continue
+
+                key = self._norm_sent(s)
+                if not key:
+                    rejected.append(("empty_norm", s))
+                    continue
+
+                dup_counts[key] += 1
+                if key not in rep_text:
+                    rep_text[key] = s
+
+            unique_sentences = list(rep_text.values())
 
             # Shuffle
             rng.shuffle(unique_sentences)
@@ -98,10 +115,27 @@ class RoRoShuffler:
             out_dir = out_root / subpath
             out_dir.mkdir(parents=True, exist_ok=True)
 
+            # Top-100 duplicates (ignore singletons)
+            top100 = [(k, c) for (k, c) in dup_counts.most_common(100) if c >= 2]
+            top_csv = out_dir / "_top100_duplicates.csv"
+            with top_csv.open("w", encoding="utf-8", newline="") as f:
+                w = csv.writer(f)
+                w.writerow(["rank", "count", "sentence"])
+                for i, (k, c) in enumerate(top100, start=1):
+                    w.writerow([i, c, rep_text[k]])
+
+            # Rejected sentences
+            rej_csv = out_dir / "_rejected_sentences.csv"
+            with rej_csv.open("w", encoding="utf-8", newline="") as f:
+                w = csv.writer(f)
+                w.writerow(["reason", "sentence"])
+                for reason, sent in rejected:
+                    w.writerow([reason, sent])
+
             print (f"Writing {len(unique_sentences)} sentences to {out_dir}...")
             written_this_folder = 0
             for idx, text in enumerate(self._make_texts_close_to_target(unique_sentences), start = 1):
-                fname = out_dir / f"part_{idx:03d}.txt"
+                fname = out_dir / f"part_{idx:03d}.json"
 
                 payload = {
                     "title": f"part_{idx:03d}",
@@ -234,3 +268,29 @@ class RoRoShuffler:
             if any(ch.isalpha() for ch in tok):
                 cnt += 1
         return cnt
+    
+    def _is_good_sentence(self, s):
+        s = s.strip()
+
+        if len(s) < 10:
+            return False, "too_short"
+
+        letters = sum(ch.isalpha() for ch in s)
+        if letters < 7:
+            return False, "too_few_letters"
+
+        words = [w for w in s.split() if any(ch.isalpha() for ch in w)]
+        if len(words) < 2:
+            return False, "too_few_words"
+
+        if letters / max(len(s), 1) < 0.50:
+            return False, "mostly_non_letters"
+
+        bad_exact = {
+            "citește", "citeste",
+            "continua", "continuă"
+        }
+        if self._norm_sent(s) in bad_exact:
+            return False, "boilerplate"
+
+        return True, None
