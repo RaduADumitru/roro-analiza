@@ -1,6 +1,8 @@
 from .parser import RoRoParser
 from .analyzer import RoRoAnalyzer
 from .cleaner import RoRoCleaner
+from .shuffler import RoRoShuffler
+from .shuffler_db import RoRoShufflerDatabase
 import json
 
 def Cleaner():
@@ -46,36 +48,35 @@ def Statistics():
 
 def Classifiers():
     
-    parser = RoRoParser({'path': 'ignore/data-work/Romania/Ardeal', 'verbose': True, 'use_spacy': False, 'spacy_model_name': 'ro_core_news_sm'})
+    parser = RoRoParser({'path': 'ignore/shuffler_db_romania_2200', 'verbose': True, 'use_spacy': False, 'spacy_model_name': 'ro_core_news_sm'})
 
     parser.parse()
 
     analyzer = RoRoAnalyzer(parser)
 
-    result = analyzer.run('logistic_reg_tf_idf_classifier', None, False, level=0, verbose=False, only_functional = True)
+    result = analyzer.run('logistic_reg_tf_idf_classifier', None, False, level=0, verbose=True, only_functional = False, cv_folds=5)
 
     print(result)
 
-    analyzer.save_csv('ardeal_logreg_test')
+    analyzer.save_csv('13_01_shuffled_regions_all_kfolds_5')
 
-    analyzer.save_csv_matrix('ardeal_logreg_test')
-
+    analyzer.save_csv_matrix('13_01_shuffled_regions_all_kfolds_5')
 
 def ClassifiersBERT():
     
-    parser = RoRoParser({'path': 'ignore/data-work', 'verbose': True, 'use_spacy': False, 'spacy_model_name': 'ro_core_news_sm'})
+    parser = RoRoParser({'path': 'ignore/data-work/Romania/Crisana', 'verbose': True, 'use_spacy': False, 'spacy_model_name': 'ro_core_news_sm'})
 
     parser.parse()
 
     analyzer = RoRoAnalyzer(parser)
 
-    result = analyzer.run('bert_classifier', None, False, level=0, model_name="readerbench/RoBERT-small", fp16=False, max_length=128, freeze_encoder=True)
+    result = analyzer.run('bert_classifier', None, False, level=0, model_name="readerbench/RoBERT-small", fp16=False, max_length=128, freeze_encoder=True, cv_folds=3)
 
     print(result)
 
-    analyzer.save_csv('ro_md')
+    analyzer.save_csv('bert_crisana_nocv')
 
-    analyzer.save_csv_matrix('ro_md')
+    analyzer.save_csv_matrix('bert_crisana_nocv')
 
 def ClassifiersLogRegBERT():
     
@@ -85,7 +86,7 @@ def ClassifiersLogRegBERT():
 
     analyzer = RoRoAnalyzer(parser)
 
-    result = analyzer.run('bert_logistic_regression_classifier', None, False, level=0, verbose=True)
+    result = analyzer.run('bert_logistic_regression_classifier', None, False, level=0, verbose=True, cv_folds=3)
 
     print(result)
 
@@ -94,20 +95,32 @@ def ClassifiersLogRegBERT():
     analyzer.save_csv_matrix('crisana_test')
 
 def StatsClassifiers():
-    parser = RoRoParser({'path': 'ignore/data-work/', 'verbose': True, 'use_spacy': False, 'spacy_model_name': 'ro_core_news_sm'})
+    parser = RoRoParser({'path': 'ignore/data-work/Romania/Crisana', 'verbose': True, 'use_spacy': True, 'spacy_model_name': 'ro_core_news_sm'})
 
     parser.parse()
 
     analyzer = RoRoAnalyzer(parser)
 
-    result = analyzer.run('sentence_stats_classifier', None, False, level=0, verbose=False)
+    result = analyzer.run('sentence_stats_classifier', None, False, level=0, verbose=True)
 
-    print(result)
+    analyzer.save_csv('test_statsc_crisana')
 
-    analyzer.save_csv('18_11_romd')
+    analyzer.save_csv_matrix('test_statsc_crisana')
 
-    analyzer.save_csv_matrix('18_11_romd')
+def Shuffle():
+    parser = RoRoParser({'path': 'ignore/data-work/Romania/Ardeal', 'verbose': True, 'use_spacy': False})
 
+    parser.parse()
+
+    shuffler = RoRoShuffler(parser)
+
+    shuffler.setLevel(0)
+
+    shuffler.setTargetWordCount(100)
+
+    shuffler.setOutputPath("ignore/shuffler_db_test")
+
+    shuffler.run()
 if __name__ == "__main__":
     Classifiers()
 

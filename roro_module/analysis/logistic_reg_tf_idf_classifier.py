@@ -83,7 +83,7 @@ class RoRoLogisticRegTfIdfClassifier:
             folder = "(root)"
         return folder
 
-    def _extract_xy(self, entries, only_functional = False):
+    def _extract_xy(self, entries, type = "all"):
         """
         Extract the X and y values from the given entries.
 
@@ -114,7 +114,7 @@ class RoRoLogisticRegTfIdfClassifier:
             if not text:
                 continue
 
-            if only_functional:
+            if type == "functional":
                 # Reuse doc if available, otherwise create it once here
                 if doc is None:
                     if self._spacy_model is None:
@@ -122,6 +122,15 @@ class RoRoLogisticRegTfIdfClassifier:
                     doc = self._spacy_model(text)
 
                 tokens = self._functional_tokens_from_doc(doc)
+                text = " ".join(tokens)
+            elif type == "stop":
+                # Reuse doc if available, otherwise create it once here
+                if doc is None:
+                    if self._spacy_model is None:
+                        self._spacy_model = spacy.load(self._spacy_model_name)
+                    doc = self._spacy_model(text)
+
+                tokens = self._stop_tokens_from_doc(doc)
                 text = " ".join(tokens)
             
 
@@ -146,8 +155,19 @@ class RoRoLogisticRegTfIdfClassifier:
             and tok.pos_ in {"ADP", "CCONJ", "SCONJ", "PRON", "DET", "AUX", "PART", "INTJ"}
         ]
 
+    def _stop_tokens_from_doc(self, doc):
+        """
+        Given a spaCy Doc, return a list of stop-words .
+        """
+        return [
+            tok.text.lower()
+            for tok in doc
+            if not tok.is_space
+            and not tok.is_punct
+            and tok.is_stop
+        ]
 
-    def _build_pipeline(self, only_functional = False, verbose = False):
+    def _build_pipeline(self, type = 'all', verbose = False):
         """
         Build a scikit-learn Pipeline consisting of a TfidfVectorizer and a
         LogisticRegression classifier. The hyperparameters are set according to
@@ -158,12 +178,12 @@ class RoRoLogisticRegTfIdfClassifier:
 
         self.vectorizer = TfidfVectorizer(
             analyzer=self.tfidf_cfg.analyzer,
-            ngram_range=self.tfidf_cfg.ngram_range if not only_functional else (1, 1),
+            ngram_range=self.tfidf_cfg.ngram_range if type == 'all' else (1, 1),
             max_df=self.tfidf_cfg.max_df,
             min_df=self.tfidf_cfg.min_df,
             max_features=self.tfidf_cfg.max_features,
             sublinear_tf=self.tfidf_cfg.sublinear_tf,
-            lowercase=self.tfidf_cfg.lowercase if not only_functional else False,
+            lowercase=self.tfidf_cfg.lowercase if type == 'all' else False,
             strip_accents=self.tfidf_cfg.strip_accents,
             token_pattern=r"(?u)\b\w\w+\b"
         )
@@ -179,59 +199,75 @@ class RoRoLogisticRegTfIdfClassifier:
             ("clf", self.clf),
         ])
 
-    def _top_features(self, k = 10):
+    def _top_features(self, k=10):
         """
-        Return a dictionary with the top k features for each class.
+        Return top-k positive and top-k negative features for each class.
 
-        The returned dictionary will have the class names as keys, and the
-        corresponding values will be lists of the top k feature names for
-        each class, sorted in descending order of importance.
-
-        :param k: the number of top features to return per class
-        :return: a dictionary with class names as keys and lists of feature names as values
+        Output format:
+        {
+            "<classA>": {"pos": [...], "neg": [...]},
+            "<classB>": {"pos": [...], "neg": [...]},
+            ...
+        }
         """
         if self.vectorizer is None or self.clf is None:
             return {}
 
         feature_names = np.array(self.vectorizer.get_feature_names_out())
-        # Binary LR -> coef_ shape (1, n_features), multi-class -> (n_classes, n_features)
         coef = self.clf.coef_
         classes = self.clf.classes_
         self.label_order_ = list(classes)
 
         out = {}
+
         if coef.shape[0] == 1:
-            # Binary: positive class = classes[1]
-            pos_idx = np.argsort(coef[0])[-k:]
-            neg_idx = np.argsort(coef[0])[:k]
-            out[classes[1]] = feature_names[pos_idx].tolist()
-            out[classes[0]] = feature_names[neg_idx].tolist()
+            # Binary: coef[0] positive direction corresponds to classes[1]
+            order = np.argsort(coef[0])
+            neg_idx = order[:k]
+            pos_idx = order[-k:]
+
+            out[classes[1]] = {
+                "pos": feature_names[pos_idx].tolist(),
+                "neg": feature_names[neg_idx].tolist(),
+            }
+            # For the other class, flip interpretation
+            out[classes[0]] = {
+                "pos": feature_names[neg_idx].tolist(),
+                "neg": feature_names[pos_idx].tolist(),
+            }
         else:
-            # One-vs-rest: per class
+            # Multiclass OvR: per-class coef row
             for i, c in enumerate(classes):
-                top_idx = np.argsort(coef[i])[-k:]
-                out[c] = feature_names[top_idx].tolist()
+                order = np.argsort(coef[i])
+                neg_idx = order[:k]
+                pos_idx = order[-k:]
+                out[c] = {
+                    "pos": feature_names[pos_idx].tolist(),
+                    "neg": feature_names[neg_idx].tolist(),
+                }
+
         return out
+
     
     def _prepare_common(self, entries, **kwargs):
         level = kwargs.get("level", self.level)
         self.level = level
 
-        only_functional = kwargs.get("only_functional", False)
+        type = kwargs.get("type", 'all')
         verbose = kwargs.get("verbose", False)
 
-        X, y, label_counts = self._extract_xy(entries, only_functional)
+        X, y, label_counts = self._extract_xy(entries, type)
 
         if len(set(y)) < 2:
             return {"error": "Need at least two distinct labels.", "label_counts": label_counts}
         
-        self.label_order_ = list(set(y))
+        self.label_order_ = sorted(set(y))
 
         ctx = {
             "X": X,
             "y": np.array(y),
             "label_counts": label_counts,
-            "only_functional": only_functional,
+            "type": type,
             "verbose": verbose
         }
 
@@ -274,7 +310,7 @@ class RoRoLogisticRegTfIdfClassifier:
         X              = ctx["X"]
         y              = ctx["y"]
         label_counts   = ctx["label_counts"]
-        only_functional = ctx["only_functional"]
+        type = ctx["type"]
         verbose        = ctx["verbose"]
 
 
@@ -282,7 +318,7 @@ class RoRoLogisticRegTfIdfClassifier:
             X, y, test_size=self.test_size, random_state=self.random_state, stratify=y
         )
 
-        pipe = self._build_pipeline(only_functional, verbose)
+        pipe = self._build_pipeline(type, verbose)
         pipe.fit(X_train, y_train)
 
         y_pred = pipe.predict(X_test)
@@ -314,7 +350,10 @@ class RoRoLogisticRegTfIdfClassifier:
 
         top_feats = self._top_features(k=10)
         # Implode the feature lists into strings
-        top_feats_str = {k: ", ".join(v) for k, v in top_feats.items()}
+        top_feats_str = {}
+        for label, feats in top_feats.items():
+            top_feats_str[f"{label}_pos"] = ", ".join(feats["pos"])
+            top_feats_str[f"{label}_neg"] = ", ".join(feats["neg"])
 
         return {'stats':{'result':{
                 "processed": len(X),
@@ -351,7 +390,7 @@ class RoRoLogisticRegTfIdfClassifier:
         X              = ctx["X"]
         y              = ctx["y"]
         label_counts   = ctx["label_counts"]
-        only_functional = ctx["only_functional"]
+        type = ctx["type"]
         verbose        = ctx["verbose"]
 
         skf = StratifiedKFold(n_splits=cv_folds, shuffle=True, random_state=self.random_state)
@@ -367,7 +406,7 @@ class RoRoLogisticRegTfIdfClassifier:
             y_train = [y[i] for i in train_idx]
             y_test = [y[i] for i in test_idx]
 
-            pipe = self._build_pipeline(only_functional, verbose)
+            pipe = self._build_pipeline(type, verbose)
             pipe.fit(X_train, y_train)
 
             y_pred = pipe.predict(X_test)
@@ -430,14 +469,18 @@ class RoRoLogisticRegTfIdfClassifier:
                 roc_auc_global = None
 
         # Fit on full data once for top features / final model
-        pipe_full = self._build_pipeline(only_functional, verbose)
+        pipe_full = self._build_pipeline(type, verbose)
         pipe_full.fit(X, y)
         self.pipeline = pipe_full
         self.vectorizer = pipe_full.named_steps["tfidf"]
         self.clf = pipe_full.named_steps["clf"]
 
         top_feats = self._top_features(k = 10)
-        top_feats_str = {k: ", ".join(v) for k, v in top_feats.items()}
+        # Implode the feature lists into strings
+        top_feats_str = {}
+        for label, feats in top_feats.items():
+            top_feats_str[f"{label}_pos"] = ", ".join(feats["pos"])
+            top_feats_str[f"{label}_neg"] = ", ".join(feats["neg"])
 
 
         stats = {}
