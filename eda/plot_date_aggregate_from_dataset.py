@@ -6,6 +6,7 @@ comparison plots between the top-level folders `judete` and `raioane`:
 - total content chars
 - total content words
 
+The plots include the name of the dataset used in the title.
 Saves PNG files under `eda/plots/`.
 """
 from pathlib import Path
