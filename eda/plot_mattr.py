@@ -3,7 +3,7 @@
 MATTR computes TTR over a sliding window of N tokens and averages across all windows.
 This gives a more stable measure than raw TTR, especially for texts of varying length.
 
-Outputs `eda/plots/mattr_window_{window_size}_judete_vs_raioane.png`.
+Outputs `eda/plots/mattr_window_{window_size}_judete_vs_raioane_<dataset>.png` with the dataset name in the title.
 """
 from pathlib import Path
 import argparse
@@ -78,7 +78,7 @@ def compute_mattr_for_keys(parser, keys, window_size):
     return results
 
 
-def plot_mattr_bar(results, window_size, out_path: Path):
+def plot_mattr_bar(results, window_size, out_path: Path, dataset_name: str):
     """Plot MATTR as a bar chart comparing judete vs raioane."""
     keys = list(results.keys())
     mattr_values = [results[k]['mattr'] * 100 for k in keys]
@@ -87,7 +87,7 @@ def plot_mattr_bar(results, window_size, out_path: Path):
     bars = plt.bar(keys, mattr_values, color=['#4c72b0', '#dd8452'])
     plt.ylim(0, max(mattr_values) * 1.2 if mattr_values else 1)
     plt.ylabel('MATTR (%)')
-    plt.title(f'MATTR (window={window_size}) — judete vs raioane')
+    plt.title(f'MATTR (window={window_size}) — judete vs raioane\n({dataset_name})')
     
     for bar, k in zip(bars, keys):
         h = bar.get_height()
@@ -105,14 +105,22 @@ def plot_mattr_bar(results, window_size, out_path: Path):
 
 def main():
     p = argparse.ArgumentParser()
-    p.add_argument('--data-path', default='ignore/data-work', help='Path to dataset root')
+    p.add_argument('--data-path', default='data-cleaned', help='Path to dataset root')
     p.add_argument('--window-size', type=int, default=100, help='Window size for MATTR computation (default: 100)')
     args = p.parse_args()
 
     data_root = Path(args.data_path)
+
+    # Make path absolute if provided relative to repo root
+    if not data_root.is_absolute():
+        repo_root = Path(__file__).resolve().parents[1]
+        data_root = repo_root / data_root
+
     if not data_root.exists():
         print(f"Data path {data_root} does not exist. Provide the dataset root path.")
         sys.exit(1)
+
+    dataset_name = data_root.name
     
     parser_opts = {'path': str(data_root), 'verbose': False, 'use_spacy': False}
     parser = RoRoParser(parser_opts)
@@ -125,14 +133,14 @@ def main():
     keys = ['judete', 'raioane']
     results = compute_mattr_for_keys(parser, keys, args.window_size)
 
-    out_path = Path(__file__).resolve().parent / 'plots' / f'mattr_window_{args.window_size}_judete_vs_raioane.png'
-    plot_mattr_bar(results, args.window_size, out_path)
+    out_path = Path(__file__).resolve().parent / 'plots' / f'mattr_window_{args.window_size}_judete_vs_raioane_{dataset_name}.png'
+    plot_mattr_bar(results, args.window_size, out_path, dataset_name)
 
     print('MATTR results:')
     for k in keys:
         v = results[k]
         print(f"- {k}: MATTR={v['mattr']:.6f} ({v['windows']:,} windows, {v['tokens']:,} tokens, {v['entries']:,} entries)")
-    print(f"\nSaved plot to {out_path.resolve()}")
+    print(f"\nSaved plot to {out_path.resolve()} ({dataset_name})")
 
 
 if __name__ == '__main__':

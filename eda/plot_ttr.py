@@ -2,9 +2,10 @@
 
 This script supports two tokenization modes controlled by the `--use-spacy` flag:
 - when not set: tokenization by regex words (`\w+`) — output file
-  `ttr_words_judete_vs_raioane.png`
+    `ttr_words_judete_vs_raioane_<dataset>.png`
 - when set: tokenization using spaCy tokens (`token.is_alpha`) — output file
-  `ttr_spacy_tokens_judete_vs_raioane.png`
+    `ttr_spacy_tokens_judete_vs_raioane_<dataset>.png`
+Each plot title also includes the dataset name.
 """
 from pathlib import Path
 import re
@@ -81,15 +82,23 @@ def plot_ttr(results: dict, out_path: Path, title: str):
 
 def main():
     p = argparse.ArgumentParser()
-    p.add_argument('--data-path', default='ignore/data-work', help='Path to dataset root (directory with JSON files)')
+    p.add_argument('--data-path', default='data-cleaned', help='Path to dataset root (directory with JSON files)')
     p.add_argument('--use-spacy', action='store_true', help='Use spaCy tokenization (requires model installed)')
     p.add_argument('--spacy-model', default='ro_core_news_sm', help='spaCy model to load when --use-spacy is set')
     args = p.parse_args()
 
     data_root = Path(args.data_path)
+
+    # Resolve relative paths against repo root for convenience
+    if not data_root.is_absolute():
+        repo_root = Path(__file__).resolve().parents[1]
+        data_root = repo_root / data_root
+
     if not data_root.exists():
         print(f"Data path {data_root} does not exist. Please provide the path to the JSON dataset.")
         sys.exit(1)
+
+    dataset_name = data_root.name
 
     # Configure parser
     parser_opts = {'path': str(data_root), 'verbose': False, 'use_spacy': bool(args.use_spacy)}
@@ -113,8 +122,8 @@ def main():
             ttr, types_count, tokens_count = compute_ttr_spacy(entries)
             results[k] = {'ttr': ttr, 'types': types_count, 'tokens': tokens_count, 'n_entries': len(entries)}
 
-        out_path = Path(__file__).resolve().parent / 'plots' / 'ttr_spacy_tokens_judete_vs_raioane.png'
-        plot_ttr(results, out_path, 'TTR (spaCy tokens): judete vs raioane')
+        out_path = Path(__file__).resolve().parent / 'plots' / f'ttr_spacy_tokens_judete_vs_raioane_{dataset_name}.png'
+        plot_ttr(results, out_path, f'TTR (spaCy tokens): judete vs raioane\n({dataset_name})')
     else:
         for k in keys:
             node = parser.get(k)
@@ -122,13 +131,13 @@ def main():
             ttr, types_count, tokens_count = compute_ttr_words(entries)
             results[k] = {'ttr': ttr, 'types': types_count, 'tokens': tokens_count, 'n_entries': len(entries)}
 
-        out_path = Path(__file__).resolve().parent / 'plots' / 'ttr_words_judete_vs_raioane.png'
-        plot_ttr(results, out_path, 'TTR (words): judete vs raioane')
+        out_path = Path(__file__).resolve().parent / 'plots' / f'ttr_words_judete_vs_raioane_{dataset_name}.png'
+        plot_ttr(results, out_path, f'TTR (words): judete vs raioane\n({dataset_name})')
 
     print('TTR results:')
     for k, v in results.items():
         print(f"- {k}: TTR={v['ttr']:.6f} ({v['types']:,}/{v['tokens']:,} tokens), entries={v['n_entries']}")
-    print(f"Saved plot to {out_path.resolve()}")
+    print(f"Saved plot to {out_path.resolve()} ({dataset_name})")
 
 
 if __name__ == '__main__':
