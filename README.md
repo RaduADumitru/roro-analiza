@@ -16,3 +16,12 @@ Since some of these scripts use the local `roro_module`, for example to parse th
 - install dependencies: `pip install -r requirements.txt`
 - run on Windows: `$env:PYTHONPATH = $PWD; python eda\plot_mattr.py --data-path 'data-cleaned'`
 - run on Linux / macOS: `export PYTHONPATH=$PWD; python eda/plot_mattr.py --data-path 'data-cleaned'`
+
+## Scraper scripts
+
+A set for scripts for scraping Moldovan news websites can be found under `scraper`. Main directions for expansion were "raioane" not covered by the original dataset, which had data from about 10 out of 32. Expanded dataset with all other raioane for which data could be sample from raional councils / city hall websites.
+
+Different scrapers were built for each website, but they all function similarly, saving data inside the data-cleaned dataset in the same format as other documents.
+
+The only external dependency is `beautifulsoup4`: `pip install beautifulsoup4`
+
